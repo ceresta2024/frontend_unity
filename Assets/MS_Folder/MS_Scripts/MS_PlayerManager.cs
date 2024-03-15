@@ -172,82 +172,84 @@ public class MS_PlayerManager : MonoBehaviour
 
     async void MovePlayerWithAccelerometer()
     {
-        // Get the acceleration along the X-axis
-        float xAcceleration = Input.acceleration.x;
-        float yAcceleration = Input.acceleration.y;
+            // Get the acceleration along the X-axis
+            float xAcceleration = Input.acceleration.x;
+            float yAcceleration = Input.acceleration.y;
 
-        if (xAcceleration > 0)
-        {
-            rightAccValue = xAcceleration;
-            accelerometerValues[0] = Mathf.Abs(rightAccValue);
-        }
-        if (xAcceleration < 0)
-        {
-            leftAccValue = xAcceleration;
-            accelerometerValues[1] = Mathf.Abs(leftAccValue);
-        }
-        if (yAcceleration > 0)
-        {
-            upAccValue = yAcceleration;
-            accelerometerValues[2] = Mathf.Abs(upAccValue);
-        }
-        if (yAcceleration < 0)
-        {
-            downAccValue = yAcceleration;
-            accelerometerValues[3] = Mathf.Abs(downAccValue);
-        }
 
-        GetMaxValue();
+            if (xAcceleration > 0)
+            {
+                rightAccValue = xAcceleration;
+                accelerometerValues[0] = Mathf.Abs(rightAccValue);
+            }
+            if (xAcceleration < 0)
+            {
+                leftAccValue = xAcceleration;
+                accelerometerValues[1] = Mathf.Abs(leftAccValue);
+            }
+            if (yAcceleration > 0)
+            {
+                upAccValue = yAcceleration;
+                accelerometerValues[2] = Mathf.Abs(upAccValue);
+            }
+            if (yAcceleration < 0)
+            {
+                downAccValue = yAcceleration;
+                accelerometerValues[3] = Mathf.Abs(downAccValue);
+            }
 
-        // Determine movement direction based on X-acceleration
-        if ((xAcceleration > rotationValue && xAcceleration == maxAccValue) && canMoveRight && /*rightPos &&*/ !movingRight)
-        {
-            movingRight = true;
-            RotatePlayer(new Vector3(0, 0, -90));
+            GetMaxValue();
 
-            Vector3 targetPos = new Vector3(transform.position.x + movePixelValue, transform.position.y, transform.position.z);
-            Tweener tween = transform.DOMove(targetPos, 0.3f);
-            tween.OnUpdate(() => { if (!canMoveRight) { tween.Kill(); } });
+            // Determine movement direction based on X-acceleration
+            if ((xAcceleration > rotationValue && xAcceleration == maxAccValue) && canMoveRight && /*rightPos &&*/ !movingRight)
+            {
+                movingRight = true;
+                RotatePlayer(new Vector3(0, 0, -90));
 
-            await Task.Delay(400);
-            movingRight = false;
-        }
-        else if ((xAcceleration < (-rotationValue) && xAcceleration == (-maxAccValue)) && canMoveLeft && /*leftPos &&*/ !movingLeft)
-        {
-            movingLeft = true;
-            RotatePlayer(new Vector3(0, 0, 90));
+                Vector3 targetPos = new Vector3(transform.position.x + movePixelValue, transform.position.y, transform.position.z);
+                Tweener tween = transform.DOMove(targetPos, 0.3f);
+                tween.OnUpdate(() => { if (!canMoveRight) { tween.Kill(); } });
 
-            Vector3 targetPos = new Vector3(transform.position.x - movePixelValue, transform.position.y, transform.position.z);
-            Tweener tween = transform.DOMove(targetPos, 0.3f);
-            tween.OnUpdate(() => { if (!canMoveLeft) { tween.Kill(); } });
+                await Task.Delay(400);
+                movingRight = false;
+            }
+            else if ((xAcceleration < (-rotationValue) && xAcceleration == (-maxAccValue)) && canMoveLeft && /*leftPos &&*/ !movingLeft)
+            {
+                movingLeft = true;
+                RotatePlayer(new Vector3(0, 0, 90));
 
-            await Task.Delay(400);
-            movingLeft = false;
-        }
-        else if ((yAcceleration > rotationValue && yAcceleration == maxAccValue) && canMoveUp && /*upPos &&*/ !movingUp)
-        {
-            movingUp = true;
-            RotatePlayer(new Vector3(0, 0, 0));
+                Vector3 targetPos = new Vector3(transform.position.x - movePixelValue, transform.position.y, transform.position.z);
+                Tweener tween = transform.DOMove(targetPos, 0.3f);
+                tween.OnUpdate(() => { if (!canMoveLeft) { tween.Kill(); } });
 
-            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y + movePixelValue, transform.position.z);
-            Tweener tween = transform.DOMove(targetPos, 0.3f);
-            tween.OnUpdate(() => { if (!canMoveUp) { tween.Kill(); } });
+                await Task.Delay(400);
+                movingLeft = false;
+            }
+            else if ((yAcceleration > rotationValue && yAcceleration == maxAccValue) && canMoveUp && /*upPos &&*/ !movingUp)
+            {
+                movingUp = true;
+                RotatePlayer(new Vector3(0, 0, 0));
 
-            await Task.Delay(400);
-            movingUp = false;
-        }
-        else if ((yAcceleration < (-rotationValue) && yAcceleration == (-maxAccValue)) && canMoveDown && /*downPos &&*/ !movingDown)
-        {
-            movingDown = true;
-            RotatePlayer(new Vector3(0, 0, 180));
+                Vector3 targetPos = new Vector3(transform.position.x, transform.position.y + movePixelValue, transform.position.z);
+                Tweener tween = transform.DOMove(targetPos, 0.3f);
+                tween.OnUpdate(() => { if (!canMoveUp) { tween.Kill(); } });
 
-            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y - movePixelValue, transform.position.z);
-            Tweener tween = transform.DOMove(targetPos, 0.3f);
-            tween.OnUpdate(() => { if (!canMoveDown) { tween.Kill(); } });
+                await Task.Delay(400);
+                movingUp = false;
+            }
+            else if ((yAcceleration < (-rotationValue) && yAcceleration == (-maxAccValue)) && canMoveDown && /*downPos &&*/ !movingDown)
+            {
+                movingDown = true;
+                RotatePlayer(new Vector3(0, 0, 180));
 
-            await Task.Delay(400);
-            movingDown = false;
-        }
+                Vector3 targetPos = new Vector3(transform.position.x, transform.position.y - movePixelValue, transform.position.z);
+                Tweener tween = transform.DOMove(targetPos, 0.3f);
+                tween.OnUpdate(() => { if (!canMoveDown) { tween.Kill(); } });
+
+                await Task.Delay(400);
+                movingDown = false;
+            }
+        
     }
 
     async void MovePlayerWithPhysicalInput()
@@ -389,6 +391,7 @@ public class MS_PlayerManager : MonoBehaviour
 
     async void MovePlayerWithKeyboardInput()
     {
+
         if (Input.GetKey(KeyCode.D) && canMoveRight && !movingRight)
         {
             movingRight = true;

@@ -1,14 +1,12 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-//camera clamp x2, x27, ,z4.5f, z24.5f
 
 public class MS_CameraController : MonoBehaviour
 {
     public Transform playerTransform;
     public Camera mainCamera;
-    public float margin = 0.1f; // Margin value for all sides
+    public float margin = 10f; // Margin value for all sides
+    public float followSpeed = 5f; // Speed at which the camera follows the player
 
     void Update()
     {
@@ -33,27 +31,9 @@ public class MS_CameraController : MonoBehaviour
             viewportPos.y < bottomMargin || viewportPos.y > topMargin ||
             viewportPos.z < 0)
         {
-            //Debug.Log("Player is outside camera view!");
-
-            if (playerTransform.position.y < 2)
-            {
-                if (playerTransform.position.x <= -12)
-                    transform.DOMove(new Vector3(-13, -4.5f, transform.position.z), 0.5f);
-                else if (playerTransform.position.x >= 8)
-                    transform.DOMove(new Vector3(12, -4.5f, transform.position.z), 0.5f);
-                else
-                    transform.DOMove(new Vector3(playerTransform.position.x, -4.5f, transform.position.z), 0.5f);
-            }
-            else
-            {
-                if (playerTransform.position.x <= -12)
-                    transform.DOMove(new Vector3(-13, 5.5f, transform.position.z), 0.5f);
-                else if (playerTransform.position.x >= 8)
-                    transform.DOMove(new Vector3(12, 5.5f, transform.position.z), 0.5f);
-                else
-                    transform.DOMove(new Vector3(playerTransform.position.x, 5.5f, transform.position.z), 0.5f);
-            }
-            // Implement your logic here, such as stopping player movement, showing a message, etc.
+            // Smoothly interpolate the camera towards the player's position
+            Vector3 targetPosition = new Vector3(playerTransform.position.x, playerTransform.position.y, transform.position.z);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
         }
     }
 }

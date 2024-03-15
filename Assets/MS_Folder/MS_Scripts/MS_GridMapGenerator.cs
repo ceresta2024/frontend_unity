@@ -22,6 +22,13 @@ public class MS_GridMapGenerator : MonoBehaviour
 
     public List<Transform> listOfSpawnPos = new List<Transform>();
 
+    public GameObject teleportEntryPrefab;
+    public GameObject teleportExitPrefab;
+    public int numberOfTeleporters = 5;
+
+    private List<Vector2> teleportEntryPositions = new List<Vector2>();
+    private List<Vector2> teleportExitPositions = new List<Vector2>();
+
     // Define tetromino shapes
     private readonly int[][][] tetrominos =
     {
@@ -80,6 +87,36 @@ public class MS_GridMapGenerator : MonoBehaviour
         ActivatePlayer();
 
         GenerateKeyAndFire();
+
+        GenerateTeleporters();
+    }
+
+    void GenerateTeleporters()
+    {
+        GenerateTeleporterPositions(teleportEntryPositions, numberOfTeleporters);
+        GenerateTeleporterPositions(teleportExitPositions, numberOfTeleporters);
+
+        for (int i = 0; i < numberOfTeleporters; i++)
+        {
+            // Spawn teleport entry
+            GameObject entryTeleporter = Instantiate(teleportEntryPrefab, teleportEntryPositions[i], Quaternion.identity);
+            entryTeleporter.transform.parent = transform;
+
+            // Spawn teleport exit
+            GameObject exitTeleporter = Instantiate(teleportExitPrefab, teleportExitPositions[i], Quaternion.identity);
+            exitTeleporter.transform.parent = transform;
+        }
+    }
+
+    void GenerateTeleporterPositions(List<Vector2> positions, int numberOfTeleporters)
+    {
+        for (int i = 0; i < numberOfTeleporters; i++)
+        {
+            int randomIndex = Random.Range(0, listOfSpawnPos.Count);
+            Vector2 teleportPosition = listOfSpawnPos[randomIndex].position;
+            positions.Add(teleportPosition);
+            listOfSpawnPos.RemoveAt(randomIndex);
+        }
     }
 
     void GenerateGridWithObstacles()
@@ -156,7 +193,7 @@ public class MS_GridMapGenerator : MonoBehaviour
 
                         if (gridX >= 0 && gridX < gridSizeX && gridY >= 0 && gridY < gridSizeY)
                         {
-                            Vector2 spawnPosition = new Vector2((posX + x) * cellSize, -(posY + y) * cellSize);
+                            Vector2 spawnPosition = startPosition + new Vector2((posX + x) * cellSize, -(posY + y) * cellSize);
 
                             // Check if the position is near the exit cell
                             if (Mathf.Abs(gridX - exitPosX) < 2 && Mathf.Abs(gridY - gridSizeY + 1) < 2)
@@ -166,13 +203,14 @@ public class MS_GridMapGenerator : MonoBehaviour
                             }
 
                             // Check if the position is occupied by a tetromino or obstacle
-                            if (tetrominoTransform.Contains(spawnPosition) || occupiedPositions.Contains(spawnPosition))
+                            if (IsPositionOccupied(spawnPosition, tetromino[0].Length, tetromino.Length) || occupiedPositions.Contains(spawnPosition))
                             {
                                 positionOccupied = true;
                                 break;
                             }
                         }
                     }
+
 
                     if (positionOccupied)
                     {
@@ -224,6 +262,22 @@ public class MS_GridMapGenerator : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    bool IsPositionOccupied(Vector2 position, int width, int height)
+    {
+        Collider[] colliders = Physics.OverlapBox(position, new Vector3(width * cellSize / 10, height * cellSize / 10, 0.1f));
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.tag == "Thorn" || collider.tag == "Grass" || collider.tag == "Pit")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void DisableExtraCells()
