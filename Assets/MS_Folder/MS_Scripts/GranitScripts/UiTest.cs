@@ -7,6 +7,6 @@ public class UiTest : MonoBehaviour
 {
     public void GoToGame()
     {
-        SceneManager.LoadScene("1_Game");
+        SceneManager.LoadScene("02_Game");
     }
 }
