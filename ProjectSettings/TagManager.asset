@@ -9,6 +9,11 @@ TagManager:
   - Key
   - Flame
   - Obstacle
+  - Grass
+  - Pit
+  - TeleportEntry
+  - TeleportExit
+  - Thorn
   layers:
   - Default
   - TransparentFX
@@ -20,7 +25,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - MiniMap
   - 
   - 
   - 

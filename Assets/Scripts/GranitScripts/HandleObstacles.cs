@@ -23,7 +23,7 @@ public class HandleObstacles : MonoBehaviour
             spriteColor.a = 1f;
             spriteOpacity.color = spriteColor;
 
-            if(Application.platform == RuntimePlatform.Android)
+            if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 playerManager.movePixelValue = 0.005f;
             }
@@ -39,7 +39,7 @@ public class HandleObstacles : MonoBehaviour
             spriteColor.a = 1f;
             spriteOpacity.color = spriteColor;
 
-            if (Application.platform == RuntimePlatform.Android)
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 playerManager.movePixelValue = 0.005f;
             }
@@ -67,7 +67,7 @@ public class HandleObstacles : MonoBehaviour
             spriteColor.a = 0.2f;
             spriteOpacity.color = spriteColor;
 
-            if (Application.platform == RuntimePlatform.Android)
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 playerManager.movePixelValue = 0.01f;
             }
@@ -83,7 +83,7 @@ public class HandleObstacles : MonoBehaviour
             spriteColor.a = 0.2f;
             spriteOpacity.color = spriteColor;
 
-            if (Application.platform == RuntimePlatform.Android)
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 playerManager.movePixelValue = 0.01f;
             }
@@ -100,7 +100,7 @@ public class HandleObstacles : MonoBehaviour
             spriteColor.a = 0.2f;
             spriteOpacity.color = spriteColor;
 
-            if (Application.platform == RuntimePlatform.Android)
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 playerManager.movePixelValue = 0.01f;
             }
@@ -115,7 +115,7 @@ public class HandleObstacles : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
 
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WindowsPlayer)
         {
             playerManager.movePixelValue = 0.01f;
         }
