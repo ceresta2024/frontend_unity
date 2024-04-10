@@ -34,8 +34,8 @@ public class ShopManager : MonoBehaviour
        
         WebRequestHandler<GetStoreListResponse> request = new WebRequestHandler<GetStoreListResponse>(OnGotStoreListResponse);
         string url = "/shop/get_store_list/" ;
-
-        StartCoroutine(request.SendRequestAsync(url, "GET", ""));
+        string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
     }
 
     // Response to store list
@@ -71,7 +71,7 @@ public class ShopManager : MonoBehaviour
         WebRequestHandler<GetInventoryListResponse> request = new WebRequestHandler<GetInventoryListResponse>(OnGotInventoryListResponse);
         string url = "/shop/get_inventory_list/";
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        StartCoroutine(request.SendRequestAsync(url, "GET",accesstoken, ""));
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
     }
 
     // Response to inventory list
