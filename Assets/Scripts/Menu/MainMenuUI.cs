@@ -6,7 +6,7 @@ using System.IO;
 
 public class MainMenuUI : MonoBehaviour
 {
-    public GameObject gameUI;
+    //public GameObject gameUI;
 
     void Start()
     {
@@ -24,7 +24,7 @@ public class MainMenuUI : MonoBehaviour
     
     void Update()
     {
-        gameUI.transform.localScale = new Vector3(Screen.width / 720f, Screen.height / 1440f, 1f);
+        //gameUI.transform.localScale = new Vector3(Screen.width / 720f, Screen.height / 1440f, 1f);
     }
 
     public void PlayGame()

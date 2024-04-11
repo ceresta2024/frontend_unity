@@ -3,17 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Road
-  - Wall
-  - Key
-  - Flame
-  - Obstacle
-  - Grass
-  - Pit
-  - TeleportEntry
-  - TeleportExit
-  - Thorn
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -25,7 +15,7 @@ TagManager:
   - 
   - 
   - 
-  - MiniMap
+  - 
   - 
   - 
   - 

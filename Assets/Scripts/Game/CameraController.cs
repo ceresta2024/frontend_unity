@@ -18,7 +18,10 @@ public class CameraController : MonoBehaviour
         // Ensure playerTransform and mainCamera are assigned
         if (playerTransform == null || mainCamera == null)
         {
-            playerTransform = GameManager.instance.player.transform;
+            if(GameManager.instance.player != null)
+            {
+                playerTransform = GameManager.instance.player.transform;
+            }                        
 
             Debug.LogWarning("Assign player transform and main camera in the inspector!");
             return;
