@@ -29,7 +29,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("GameScene01");
     }
 
     IEnumerator LoadJsonFile(string filePath)
