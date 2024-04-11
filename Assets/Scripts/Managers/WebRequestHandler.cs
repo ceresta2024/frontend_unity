@@ -175,6 +175,7 @@ public class WebRequestHandler<T>
                 if (!string.IsNullOrEmpty(request.downloadHandler.text))
                 {
                     response = JsonUtility.FromJson<WebResponse<T>>(responseData);
+                    response.status = request.responseCode;
                 }
             }
 
@@ -187,7 +188,7 @@ public class WebRequestHandler<T>
 [Serializable]
 public class WebResponse<T>
 {
-    [SerializeField] public int status;
+    [SerializeField] public long status;
     [SerializeField] public string message;
     [SerializeField] public T data;
 

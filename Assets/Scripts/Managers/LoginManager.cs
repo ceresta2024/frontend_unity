@@ -157,10 +157,29 @@ public class LoginManager : MonoBehaviour
        
     }
 
+    public void GetInfo()
+    {
+        WebRequestHandler<UserInfoResponse> request = new(OnGetInfoResponse);
+        string url = "/user/getinfo";
+        string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
+        string data = JsonUtility.ToJson(new UserInfoRequest());
+        StartCoroutine(request.SendRequestAsync(url, "POST", accesstoken, data));
+    }
+
+    private void OnGetInfoResponse(WebResponse<UserInfoResponse> response)
+    {
+        if (response.status == 403) {
+            PlayerPrefs.DeleteKey("UserAccessToken");
+            UIController.Instance.UserLoggedOutUI();
+        } else {
+            UIController.Instance.UserLoggedInUI();
+        }
+    }
+
     public void Logout()
     {
         UIController.Instance.loadingSpinner.SetActive(true);
-        WebRequestHandler<LogoutResponse> request = new WebRequestHandler<LogoutResponse>(OnLogoutResponse);
+        WebRequestHandler<LogoutResponse> request = new(OnLogoutResponse);
         string url = "/user/logout";
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
         string data = JsonUtility.ToJson(new LogoutRequest());
@@ -171,29 +190,11 @@ public class LoginManager : MonoBehaviour
     {
         UIController.Instance.loadingSpinner.SetActive(false);
 
-       /* if (response.status == 1)
-        {
-            Debug.Log("Have logged out succ");
-
-        }
-        else
-        {
-            Debug.Log("Logout issue:" + response.message);
-
-        }
-        Debug.Log(response);*/
-       if (response.message.Contains("Successfully"))
-        {
-            //Logged out successfully
+        if (response.status == 200) {
+            PlayerPrefs.DeleteKey("UserAccessToken");
+            UIController.Instance.UserLoggedOutUI();
             UIController.Instance.GiveNotification(response.message);
-
         }
-        else
-        {
-            UIController.Instance.GiveNotification(response.detail);
-
-        }
-        
     }
 
     public void GetUsers()
@@ -490,20 +491,26 @@ public class Detail
 [Serializable]
 public class LogoutRequest
 {
-    [SerializeField]
-    public string username;
-
-    public LogoutRequest()
-    {
-        //this.username = username;
-    }
 }
+
 [Serializable]
 public class LogoutResponse
 {
     //Success response
     [SerializeField]
     public Detail detail;
+
+}
+
+[Serializable]
+public class UserInfoRequest
+{
+
+}
+
+[Serializable]
+public class UserInfoResponse
+{
 
 }
 

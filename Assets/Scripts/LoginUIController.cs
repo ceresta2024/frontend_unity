@@ -33,8 +33,8 @@ public class LoginUIController : MonoBehaviour
 
         if (!string.IsNullOrEmpty(accesstoken))
         {
-            UIController.Instance.UserLoggedInUI();
-
+            LoginManager.Instance.GetInfo();
+            // UIController.Instance.UserLoggedInUI();
         }
     }
     public void Login()
