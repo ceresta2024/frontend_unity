@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Ceresta.sln"
+    "dotnet.defaultSolution": "Ceresta.sln",
+    "dotnet.preferCSharpExtension": true
 }

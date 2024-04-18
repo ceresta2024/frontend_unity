@@ -6,8 +6,8 @@ public class PlayerScript : MonoBehaviour
 {
     public Rigidbody2D myRigidbody;
     public float speed = 1;
-
     public int hitPoint = 100;
+    public bool paused = false;
 
     void Awake()
     {
@@ -23,14 +23,26 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Application.platform == RuntimePlatform.Android)
+        if (paused)
         {
-            MoveWithGyroscope();
+            myRigidbody.velocity = Vector2.zero;
         }
-        else if (Application.platform == RuntimePlatform.WindowsEditor)
+        else
         {
-            MoveWithKeyboard();
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                MoveWithGyroscope();
+            }
+            else if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                MoveWithKeyboard();
+            }
         }
+    }
+
+    public void OnMouseUpAsButton()
+    {
+        paused = !paused;
     }
 
     private void MoveWithKeyboard()

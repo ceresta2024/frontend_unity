@@ -7,18 +7,6 @@ public class TunnelScript : MonoBehaviour
     public GameObject player;
     public PolygonCollider2D tunnelExits;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var exitIdx = Random.Range(0, tunnelExits.points.Length);
