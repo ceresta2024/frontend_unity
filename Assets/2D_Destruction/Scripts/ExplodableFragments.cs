@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ExplodableFragments : ExplodableAddon{
+public class ExplodableFragments : ExplodableAddon
+{
     public override void OnFragmentsGenerated(List<GameObject> fragments)
     {
         foreach (GameObject fragment in fragments)
@@ -15,7 +16,7 @@ public class ExplodableFragments : ExplodableAddon{
 
             fragment.layer = explodable.gameObject.layer;
 
-            fragExp.fragmentInEditor();
+            fragExp.FragmentInEditor();
         }
     }
 }

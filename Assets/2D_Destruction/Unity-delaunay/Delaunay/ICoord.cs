@@ -2,10 +2,11 @@ using UnityEngine;
 
 namespace Delaunay
 {
-	
+
 	public interface ICoord
 	{
-		Vector2 Coord {
+		Vector2 coord
+		{
 			get;
 		}
 	}

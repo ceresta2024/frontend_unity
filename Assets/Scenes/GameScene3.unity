@@ -1006,6 +1006,7 @@ MonoBehaviour:
   myRigidbody: {fileID: 541301214}
   speed: 1
   hitPoint: 100
+  paused: 0
 --- !u!58 &541301216
 CircleCollider2D:
   m_ObjectHideFlags: 0

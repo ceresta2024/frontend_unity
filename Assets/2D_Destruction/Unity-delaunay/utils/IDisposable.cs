@@ -4,7 +4,7 @@ namespace Delaunay
 	{
 		public interface IDisposable
 		{
-			void Dispose ();
+			void Dispose();
 		}
 	}
 }

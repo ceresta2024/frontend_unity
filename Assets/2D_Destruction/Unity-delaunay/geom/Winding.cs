@@ -1,9 +1,10 @@
 namespace Delaunay
 {
-	namespace Geo {
+	namespace Geo
+	{
 		public enum Winding
 		{
 			NONE = 0, CLOCKWISE, COUNTERCLOCKWISE
-		}		
+		}
 	}
 }

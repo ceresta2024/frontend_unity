@@ -24,16 +24,16 @@ public class Explodable : MonoBehaviour
     public ShatterType shatterType;
     public List<GameObject> fragments = new List<GameObject>();
     private List<List<Vector2>> polygons = new List<List<Vector2>>();
-   
+
     /// <summary>
     /// Creates fragments if necessary and destroys original gameobject
     /// </summary>
-    public void explode()
+    public void Explode()
     {
         //if fragments were not created before runtime then create them now
         if (fragments.Count == 0 && allowRuntimeFragmentation)
         {
-            generateFragments();
+            GenerateFragments();
         }
         //otherwise unparent and activate them
         else
@@ -50,24 +50,26 @@ public class Explodable : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     /// <summary>
     /// Creates fragments and then disables them
     /// </summary>
-    public void fragmentInEditor()
+    public void FragmentInEditor()
     {
         if (fragments.Count > 0)
         {
-            deleteFragments();
+            DeleteFragments();
         }
-        generateFragments();
-        setPolygonsForDrawing();
+        GenerateFragments();
+        SetPolygonsForDrawing();
         foreach (GameObject frag in fragments)
         {
             frag.transform.parent = transform;
             frag.SetActive(false);
         }
     }
-    public void deleteFragments()
+
+    public void DeleteFragments()
     {
         foreach (GameObject frag in fragments)
         {
@@ -83,10 +85,11 @@ public class Explodable : MonoBehaviour
         fragments.Clear();
         polygons.Clear();
     }
+
     /// <summary>
     /// Turns Gameobject into multiple fragments
     /// </summary>
-    private void generateFragments()
+    private void GenerateFragments()
     {
         fragments = new List<GameObject>();
         switch (shatterType)
@@ -120,7 +123,8 @@ public class Explodable : MonoBehaviour
             }
         }
     }
-    private void setPolygonsForDrawing()
+
+    private void SetPolygonsForDrawing()
     {
         polygons.Clear();
         List<Vector2> polygon;
@@ -138,6 +142,7 @@ public class Explodable : MonoBehaviour
             polygons.Add(polygon);
         }
     }
+
     private Vector2 rotateAroundPivot(Vector2 point, Vector2 pivot, Quaternion angle)
     {
         Vector2 dir = point - pivot;
@@ -152,7 +157,7 @@ public class Explodable : MonoBehaviour
         {
             if (polygons.Count == 0 && fragments.Count != 0)
             {
-                setPolygonsForDrawing();
+                SetPolygonsForDrawing();
             }
 
             Gizmos.color = Color.blue;

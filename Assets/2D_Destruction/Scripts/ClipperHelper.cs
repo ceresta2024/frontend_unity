@@ -6,16 +6,17 @@ using Polygon = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Polygons = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 using Delaunay;
 
-public static class ClipperHelper {
+public static class ClipperHelper
+{
     private static float multiplier = 1000;
 
-    public static List<List<Vector2>> clip(List<Vector2> boundary, Triangle piece)
+    public static List<List<Vector2>> Clip(List<Vector2> boundary, Triangle piece)
     {
         //create Boundary Polygon
-        Polygons boundaryPoly = createPolygons(boundary);
+        Polygons boundaryPoly = CreatePolygons(boundary);
 
         //create Polygon from the triangular piece
-        Polygons subjPoly = createPolygons(piece);
+        Polygons subjPoly = CreatePolygons(piece);
 
         //clip triangular polygon against the boundary polygon
         Polygons result = new Polygons();
@@ -37,12 +38,13 @@ public static class ClipperHelper {
 
         }
         return clippedPolygons;
-        
+
     }
-    public static List<List<Vector2>> clip(List<Vector2> boundary, List<Vector2> region)
+
+    public static List<List<Vector2>> Clip(List<Vector2> boundary, List<Vector2> region)
     {
-        Polygons boundaryPoly = createPolygons(boundary);
-        Polygons regionPoly = createPolygons(region);
+        Polygons boundaryPoly = CreatePolygons(boundary);
+        Polygons regionPoly = CreatePolygons(region);
 
         //clip triangular polygon against the boundary polygon
         Polygons result = new Polygons();
@@ -66,7 +68,7 @@ public static class ClipperHelper {
         return clippedPolygons;
     }
 
-    private static Polygons createPolygons(List<Vector2> source)
+    private static Polygons CreatePolygons(List<Vector2> source)
     {
         Polygons poly = new Polygons(1);
         poly.Add(new Polygon(source.Count));
@@ -77,7 +79,8 @@ public static class ClipperHelper {
 
         return poly;
     }
-    private static Polygons createPolygons(Triangle tri)
+
+    private static Polygons CreatePolygons(Triangle tri)
     {
         Polygons poly = new Polygons(1);
         poly.Add(new Polygon(3));
@@ -88,5 +91,5 @@ public static class ClipperHelper {
 
         return poly;
     }
-   
+
 }
