@@ -62,7 +62,6 @@
       "source": "builtin",
       "dependencies": {}
     },
-<<<<<<< HEAD
     "com.unity.2d.spriteshape": {
       "version": "9.0.2",
       "depth": 1,
@@ -97,24 +96,6 @@
     },
     "com.unity.adaptiveperformance": {
       "version": "5.1.0",
-=======
-    "com.unity.addressables": {
-      "version": "1.21.20",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.scriptablebuildpipeline": "1.21.22",
-        "com.unity.modules.assetbundle": "1.0.0",
-        "com.unity.modules.imageconversion": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.ai.navigation": {
-      "version": "1.1.5",
->>>>>>> master
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -137,6 +118,20 @@
       "source": "registry",
       "dependencies": {
         "com.unity.adaptiveperformance": "5.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.addressables": {
+      "version": "1.21.20",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.scriptablebuildpipeline": "1.21.22",
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -212,20 +207,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-<<<<<<< HEAD
     "com.unity.mobile.android-logcat": {
       "version": "1.4.1",
       "depth": 0,
-=======
-    "com.unity.scriptablebuildpipeline": {
-      "version": "1.21.22",
-      "depth": 1,
->>>>>>> master
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-<<<<<<< HEAD
     "com.unity.mobile.notifications": {
       "version": "2.3.2",
       "depth": 0,
@@ -238,11 +226,13 @@
     "com.unity.profiling.core": {
       "version": "1.0.2",
       "depth": 1,
-=======
-    "com.unity.settings-manager": {
-      "version": "2.0.1",
-      "depth": 2,
->>>>>>> master
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "1.21.22",
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
