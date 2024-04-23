@@ -88,7 +88,7 @@ public class MainPun : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         PhotonNetwork.NickName = UIController.Instance.profileUsername.text;        
-        SceneManager.LoadScene("GameScene01");
+        SceneManager.LoadScene("GameScene3");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
