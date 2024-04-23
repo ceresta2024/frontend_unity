@@ -40,7 +40,7 @@ public class MainPun : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        PhotonNetwork.NickName = System.DateTime.Now.Millisecond.ToString();
+        //PhotonNetwork.NickName = System.DateTime.Now.Millisecond.ToString();    
     }
 
     void Update()
@@ -87,6 +87,7 @@ public class MainPun : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        PhotonNetwork.NickName = UIController.Instance.profileUsername.text;        
         SceneManager.LoadScene("GameScene01");
     }
 

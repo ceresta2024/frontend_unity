@@ -24,7 +24,9 @@ public class LoginUIController : MonoBehaviour
 
     public void Start()
     {
-        Invoke(nameof(CheckAlreadyLoggged), 0.1f);
+        //Invoke(nameof(CheckAlreadyLoggged), 0.1f);
+
+        Invoke(nameof(LoginAuto), .1f);
     }
 
     public void CheckAlreadyLoggged()
@@ -37,9 +39,27 @@ public class LoginUIController : MonoBehaviour
 
         }
     }
+    public void LoginAuto()
+    {
+        string username = PlayerPrefs.GetString("UserEmail", "");
+        string password = PlayerPrefs.GetString("UserPassword", "");
+
+        if((!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)))
+        {
+            LoginManager.Instance.Login(username, password);
+        }
+        else
+        {
+            Debug.Log("Will need to login manually");
+        }
+
+    }
     public void Login()
     {
         LoginManager.Instance.Login(emailLogin.text, passwordLogin.text);
+
+        PlayerPrefs.SetString("UserEmail", emailLogin.text);
+        PlayerPrefs.SetString("UserPassword", passwordLogin.text);
     }
 
     public void Register()
@@ -50,6 +70,8 @@ public class LoginUIController : MonoBehaviour
     public void Logout()
     {
         LoginManager.Instance.Logout();
+
+        
     }
 
     public void ChangePassword()
@@ -61,5 +83,13 @@ public class LoginUIController : MonoBehaviour
     public void ChangeAccount()
     {
         LoginManager.Instance.ChangeAccount();
+    }
+    private void OnDisable()
+    {
+        PlayerPrefs.Save();
+    }
+    private void OnDestroy()
+    {
+        PlayerPrefs.Save();
     }
 }

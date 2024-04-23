@@ -48,7 +48,11 @@ public class WebRequestHandler<T>
             {
                 Debug.Log("API URL:" + endpoint);
                 Debug.Log("Response:" + request.downloadHandler.text);
-               
+               if (request.downloadHandler.text == "Internal Server Error")
+                {
+                    UIController.Instance.GiveNotification(request.downloadHandler.text);
+                    UIController.Instance.loadingSpinner.SetActive(false);
+                }
 
                 if (request.downloadHandler.text.StartsWith("["))
                 {
@@ -78,7 +82,8 @@ public class WebRequestHandler<T>
                     {
                        // TimeShower.Instance.CountdownShow(serverTimeUtc.ToString("HH:mm:ss"));
 
-                        TimeShower.Instance.CountdownShow(serverTimeUtc.ToString("HH:mm:ss"));
+                        //TimeShower.Instance.CountdownShow(serverTimeUtc.ToString("HH:mm:ss")); //This was working
+                        TimeShower.Instance.CountdownShowDateTime(serverTimeUtc);
                     }
                    
                 }
@@ -161,6 +166,11 @@ public class WebRequestHandler<T>
                 Debug.Log("API URL:" + endpoint);
                 Debug.Log("Response:" + request.downloadHandler.text);
 
+                if(endpoint == "/shop/get_inventory_list/")
+                {
+                    PlayerPrefs.SetString("ITEM_INVENTORY", request.downloadHandler.text);        
+                }
+
                 if (request.downloadHandler.text.StartsWith("["))
                 {
                     // responseData = "Detail: " + 
@@ -179,7 +189,14 @@ public class WebRequestHandler<T>
             }
 
             if (OnResponse != null)
+            {
                 OnResponse.Invoke(response);
+                Debug.Log("On response called");
+
+
+
+            }
+
         }
     }
 }
@@ -197,7 +214,7 @@ public class WebResponse<T>
     // [SerializeField] public detail detail;
     [SerializeField] public int gold;
     [SerializeField] public string url;
-    [SerializeField] public string job_id;
+    [SerializeField] public int job_id;
     [SerializeField] public string access_token;
     [SerializeField] public string refresh_token;
     public WebResponse()

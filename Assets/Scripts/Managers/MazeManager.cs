@@ -18,10 +18,11 @@ public class MazeManager : MonoBehaviour
             gameObject.name = GetType().Name;
         }
     }
+
     public void GetStartTime()
     {
         WebRequestHandler<GetStartTimeResponse> request = new WebRequestHandler<GetStartTimeResponse>(OnGotStartTimeResponse);
-        string url = "/maze/get_starttime/";
+        string url = "/game/get_starttime/";
 
         StartCoroutine(request.SendRequestAsync(url, "GET", ""));
     }
@@ -50,7 +51,7 @@ public class MazeManager : MonoBehaviour
     public void GetMazeOpen()
     {
         WebRequestHandler<IsMazeOpenResponse> request = new WebRequestHandler<IsMazeOpenResponse>(IsMazeOpenResponse);
-        string url = "/maze/is_open/";
+        string url = "/game/is_open/";
 
         StartCoroutine(request.SendRequestAsync(url, "GET", ""));
     }
@@ -76,7 +77,7 @@ public class MazeManager : MonoBehaviour
     public void GetMapData()
     {
         WebRequestHandler<GetMazeMapDataResponse> request = new WebRequestHandler<GetMazeMapDataResponse>(GetMapDataResponse);
-        string url = "/maze/get_map_data/";
+        string url = "/game/get_map_data/";
 
         StartCoroutine(request.SendRequestAsync(url, "GET", ""));
     }
@@ -101,7 +102,7 @@ public class MazeManager : MonoBehaviour
     {
 
         WebRequestHandler<GetRewardResponse> request = new WebRequestHandler<GetRewardResponse>(OnGotMazeRewardResponse);
-        string url = "/maze/get_reward/";
+        string url = "/game/get_reward/";
 
         string data = JsonUtility.ToJson(new GetRewardRequest(mazeId, boxType, token));
         StartCoroutine(request.SendRequestAsync(url, "POST", data));

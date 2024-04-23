@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 //using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,6 +14,7 @@ public class TimeShower : MonoBehaviour
 
     public float totalHours = 0f; // Total hours for the countdown
     public float totalMinutes = 10f; // Total minutes for the countdown
+    public float totalSeconds = 10f; 
 
     public bool hasSetTimer;
     static TimeShower instance;
@@ -61,6 +63,22 @@ public class TimeShower : MonoBehaviour
         Debug.Log(totalHours);
         Debug.Log(totalMinutes);
 
+
+        //GET LOCAL TIME
+        DateTime currentTime = DateTime.Now;
+        string formattedTime = currentTime.ToString("HH:mm:ss");
+        string[] partsLocal = formattedTime.Split(':');
+        int localHours = int.Parse(partsLocal[0]); 
+        int localMinute = int.Parse(partsLocal[1]);
+        int localSeconds = int.Parse(partsLocal[2]);
+
+        
+        totalHours = Mathf.Abs(localMinute - int.Parse(parts[0]));
+        totalMinutes = Mathf.Abs(localSeconds - int.Parse(parts[1]));
+
+        Debug.Log($"start_time API TIME: {time} |  Local Time: {formattedTime} |  Countdown time: {totalHours}: {totalMinutes}");
+
+
         if (!hasSetTimer)
         {
             StartCoroutine(StartCountdown());
@@ -68,17 +86,43 @@ public class TimeShower : MonoBehaviour
         }
         
     }
+    public void CountdownShowDateTime(DateTime utcTime)
+    {
+
+
+        //GET LOCAL TIME
+        DateTime currentTime = DateTime.Now;
+
+        TimeSpan difference = currentTime - utcTime;
+
+        Debug.Log($"start_time API TIME: {utcTime} |  Local Time: {currentTime}");
+        Debug.Log("COUNTDOWN TIME: " + difference.Hours + ":" + difference.Minutes + ":" + difference.Seconds);
+
+        totalHours= difference.Hours;
+        totalMinutes= difference.Minutes;
+        totalSeconds = difference.Seconds;
+      //  Debug.Log($"start_time API TIME: {time} |  Local Time: {formattedTime} |  Countdown time: {totalHours}: {totalMinutes}");
+
+
+        if (!hasSetTimer)
+        {
+            StartCoroutine(StartCountdown());
+            hasSetTimer = true;
+        }
+
+    }
     private IEnumerator StartCountdown()
     {
+        
         this.gameObject.transform.parent = transform.parent.parent;
-        // float remainingTime = totalHours * 3600 + totalMinutes * 60; // Convert total hours and minutes to seconds
-        float remainingTime = totalHours * 60 + totalMinutes ;
+        float remainingTime = totalHours * 3600 + totalMinutes * 60 + totalSeconds; // Convert total hours and minutes to seconds
+        //float remainingTime = totalHours * 60 + totalMinutes ;
         while (remainingTime > 0f)
         {
             TimeSpan timeSpan = TimeSpan.FromSeconds(remainingTime);
-            // UIController.Instance.timeText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+             UIController.Instance.timeText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
 
-            UIController.Instance.timeText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
+            //UIController.Instance.timeText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
             yield return new WaitForSeconds(1f);
             remainingTime -= 1f;
         }

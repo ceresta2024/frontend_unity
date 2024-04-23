@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 //using static UnityEditor.Progress;
+//using static UnityEditor.Progress;
 //using Newtonsoft.Json;
 
 public class ShopManager : MonoBehaviour
@@ -15,6 +16,7 @@ public class ShopManager : MonoBehaviour
 
   //  public List<Item> allShopItems;
     public List<ShopItem> allShopItems;
+    public List<ShopItem> allInventoryItems;
     public ShopControl shopControlRef;
 
     public void Awake()
@@ -28,14 +30,14 @@ public class ShopManager : MonoBehaviour
             gameObject.name = GetType().Name;
         }
     }
-    
+
     public void GetStoreList()
     {
        
         WebRequestHandler<GetStoreListResponse> request = new WebRequestHandler<GetStoreListResponse>(OnGotStoreListResponse);
         string url = "/shop/get_store_list/" ;
-        string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
+        string accesstoken= PlayerPrefs.GetString("UserAccessToken","");
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken ,""));
     }
 
     // Response to store list
@@ -64,6 +66,7 @@ public class ShopManager : MonoBehaviour
         }*/
 
         shopControlRef.LoadShopList();
+        
     }
 
     public void GetInventoryList()
@@ -71,32 +74,37 @@ public class ShopManager : MonoBehaviour
         WebRequestHandler<GetInventoryListResponse> request = new WebRequestHandler<GetInventoryListResponse>(OnGotInventoryListResponse);
         string url = "/shop/get_inventory_list/";
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
+        StartCoroutine(request.SendRequestAsync(url, "GET",accesstoken, ""));
     }
 
     // Response to inventory list
     private void OnGotInventoryListResponse(WebResponse<GetInventoryListResponse> response)
     {
-       /* if (response.status == 1)
-        {
-            Debug.Log("Got Inventory list.");
+        /* if (response.status == 1)
+         {
+             Debug.Log("Got Inventory list.");
 
-        }
-        else
-        {
-            Debug.Log("Inventory list issue:" + response.message);
-        }*/
+         }
+         else
+         {
+             Debug.Log("Inventory list issue:" + response.message);
+         }*/
 
         //UIController.Instance.GiveNotification("Got Inventory List: " + response.message);
-
+        Debug.Log("Should have got the inventory list. Response data- " + response.data.data);
+        allInventoryItems.Clear();
+        allInventoryItems = response.data.data;
+        
+        shopControlRef.LoadInventoryList();
     }
 
-    public void SellItem()
+    public void SellItem(int itemID, int quantity)
     {
         WebRequestHandler<SellItemResponse> request = new WebRequestHandler<SellItemResponse>(OnSoldItemResponse);
         string url = "/shop/sell_item/";
+        string data = JsonUtility.ToJson(new SellRequest(itemID, quantity));
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken,""));
+        StartCoroutine(request.SendRequestAsync(url, "POST", accesstoken, data));
     }
 
     // Response to sold item
@@ -113,9 +121,12 @@ public class ShopManager : MonoBehaviour
         }
 
         Debug.Log(response);
-
+        LoginManager.Instance.GetGold();
         UIController.Instance.GiveNotification("Sell Item: "+ response.message);
-
+        UIController.Instance.inventoryQtyPanel.SetActive(false);
+        
+        GetInventoryList();
+       
     }
     public void BuyItem(int itemID, int quantity)
     {
@@ -144,12 +155,16 @@ public class ShopManager : MonoBehaviour
         if (string.IsNullOrEmpty( response.detail))
         {
             UIController.Instance.GiveNotification("Buy Item: " + response.message);
+            GetInventoryList();
+            GetStoreList();
+
         }
         else
         {
             UIController.Instance.GiveNotification("Buy Item: " + response.detail);
         }
-        
+        UIController.Instance.shopQtyPanel.SetActive(false);
+        LoginManager.Instance.GetGold();
     }
 
     public void GetItems()
@@ -208,7 +223,7 @@ public class GetInventoryListResponse
     [SerializeField]
     public string message;
     [SerializeField]
-    public ShopItem data;
+    public List<ShopItem> data;
 
 }
 
@@ -251,3 +266,18 @@ public class BuyRequest
     }
 }
 
+[Serializable]
+public class SellRequest
+{
+    [SerializeField]
+    public int item_id;
+    [SerializeField]
+    public int quantity;
+
+    public SellRequest(int itemID, int quantity)
+    {
+        this.item_id = itemID;
+        this.quantity = quantity;
+
+    }
+}

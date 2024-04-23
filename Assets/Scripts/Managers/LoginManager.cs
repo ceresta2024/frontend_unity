@@ -117,7 +117,7 @@ public class LoginManager : MonoBehaviour
         Debug.Log("Access TOKEN: "+ response.access_token);
         Debug.Log("PLAYER ID: " + response.id);
         Debug.Log("PLAYER NAME: " + response.name);
-        PlayerPrefs.SetString("UserAccessToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzODg4NDcsInN1YiI6IjIzIn0.oJX9nLQScGVmOiyE0ENNNtsTzuRALYE3fAmuVfJ7ReE"); 
+       // PlayerPrefs.SetString("UserAccessToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzODg4NDcsInN1YiI6IjIzIn0.oJX9nLQScGVmOiyE0ENNNtsTzuRALYE3fAmuVfJ7ReE"); 
         if (response.access_token!=null && response.access_token.Length>0)
         {
             Debug.Log("Access token: "+ response.access_token);
@@ -127,11 +127,20 @@ public class LoginManager : MonoBehaviour
             PlayerPrefs.SetString("UserRefreshToken", response.refresh_token);
 
             PlayerPrefs.SetInt("UserGold", response.gold);
+
+            PlayerPrefs.SetInt("UserJobId", response.job_id);
+
             Debug.Log("USER GOLD: "+ response.gold);
             if (UIController.Instance != null)
             {
                 UIController.Instance.UserLoggedInUI();
                 UIController.Instance.GiveNotification("You have successfully logged in.");
+
+               
+            }
+            if (ShopManager.Instance != null)
+            {
+                ShopManager.Instance.GetInventoryList();
             }
         }
         else
@@ -153,8 +162,9 @@ public class LoginManager : MonoBehaviour
 
         }*/
         Debug.Log(response.message);
-       // UIController.Instance.GiveNotification(response.message);
-       
+        GetJobs();
+        // UIController.Instance.GiveNotification(response.message);
+
     }
 
     public void Logout()
@@ -170,7 +180,9 @@ public class LoginManager : MonoBehaviour
     private void OnLogoutResponse(WebResponse<LogoutResponse> response)
     {
         UIController.Instance.loadingSpinner.SetActive(false);
+        PlayerPrefs.DeleteAll();
 
+        UIController.Instance.UserLoggedOutUI();
        /* if (response.status == 1)
         {
             Debug.Log("Have logged out succ");
@@ -293,21 +305,29 @@ public class LoginManager : MonoBehaviour
     public void GetGold()
     {
         WebRequestHandler<GetNicknameResponse> request = new WebRequestHandler<GetNicknameResponse>(GetGoldResponse);
-        string url = "/user/get_nickname/";
+        string url = "/user/get_gold/";
 
-        StartCoroutine(request.SendRequestAsync(url, "GET", ""));
+        string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
+
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
     }
     private void GetGoldResponse(WebResponse<GetNicknameResponse> response)
     {
-        if (response.status == 1)
+        if (response.detail != null)
         {
-            Debug.Log("Got nickname.");
-
+            if (response.detail.Contains("Not authenticated"))
+            {
+                UIController.Instance.GiveNotification(response.detail);
+            }
         }
         else
         {
-            Debug.Log("Getting nickname issue:" + response.message);
+            PlayerPrefs.SetInt("UserGold", response.gold);
+            Debug.Log("Update the UI Gold");
+            UIController.Instance.UpdateGoldText();  
         }
+
+      
 
         Debug.Log(response);
     }
@@ -364,6 +384,8 @@ public class LoginManager : MonoBehaviour
         Debug.Log(response.detail);
         Debug.Log(response);
 
+        UIController.Instance.UpdateProfileImageLogin();
+
         jobViewManager.LoadJobList();
     }
 
@@ -375,6 +397,8 @@ public class LoginManager : MonoBehaviour
 
         string data = JsonUtility.ToJson(new SetJobRequest(jobID));
         StartCoroutine(request.SendRequestAsync(url, "POST", accesstoken, data));
+
+        PlayerPrefs.SetInt("UserJobId", jobID);
     }
     private void SetJobResponse(WebResponse<SetJobsResponse> response)
     {
@@ -394,8 +418,10 @@ public class LoginManager : MonoBehaviour
         }
         else
         {
-            UIController.Instance.GiveNotification(response.detail);
+            UIController.Instance.GiveNotification(response.detail); 
         }
+
+        UIController.Instance.UpdateProfileImageJobChange();
 
         Debug.Log(response);
         Debug.Log(response.message);
@@ -627,4 +653,30 @@ public class JobItem
     public int id;
     [SerializeField]
     public string description;
+    [SerializeField]
+    public int speed;
+    [SerializeField]
+    public int allow_gold;
+    [SerializeField]
+    public List<items> items;
+}
+
+[Serializable]
+public class items
+{
+    [SerializeField]
+    public int id;
+    [SerializeField]
+    public string name;
+    [SerializeField]
+    public string description;
+    [SerializeField]
+    public int price;
+    [SerializeField]
+    public string hp;
+    [SerializeField]
+    public string sp;
+    [SerializeField]
+    public string img_path;
+   
 }

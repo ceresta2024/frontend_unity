@@ -7,7 +7,7 @@ using DG.Tweening;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PlayerManager : MonoBehaviourPunCallbacks
+public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     public static PlayerManager instance;
 
@@ -48,7 +48,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     float maxAccValue;
     int tmpStepCount;
 
+    // Multiplayer parameters
     public static GameObject LocalPlayerInstance;
+    public int jobIndex;
+    public string itemInventory;
+    public string playerName;
+    private Animator anim;
+    public RuntimeAnimatorController[] characterAni;
 
     private void Awake()
     {
@@ -57,6 +63,23 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if (photonView.IsMine)
         {
             LocalPlayerInstance = gameObject;
+            jobIndex = PlayerPrefs.GetInt("JOB_ID");
+            playerName = PhotonNetwork.NickName + PhotonNetwork.LocalPlayer.UserId;
+
+            if(jobIndex == 0)
+            {
+                jobIndex = 1;
+            }
+
+            itemInventory = PlayerPrefs.GetString("ITEM_INVENTORY");
+
+            // Animation Play
+            anim = this.transform.GetChild(1).gameObject.GetComponent<Animator>();
+            SelectAnimation(jobIndex, 0);
+        }
+        else
+        {
+            StartCoroutine(DelayToShowAnimations());
         }
 
         // #Critical
@@ -70,13 +93,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
                 int tmpInt = new int();
                 accelerometerValues.Add(tmpInt);
             }
-        }
+        }        
     }
 
     void Start()
     {
         if (movePhysically) rotationValue = physicalRotationValue;
-        else rotationValue = deviceRotationValue;
+        else rotationValue = deviceRotationValue;        
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -88,6 +111,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             UIManager.instance.ShowUIMessage("You found the key! Now, find the exit");
             GameManager.instance.finishLine.SetActive(true);
         }
+
         if (collision.transform.tag == "Flame")
         {
             Destroy(collision.transform.gameObject);
@@ -97,6 +121,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             playerFace.DOScale(0.045f, 0.5f);
             transform.GetComponent<SphereCollider>().radius = 0.068f;
         }
+
         if (collision.transform.tag == "Finish")
         {
             if (GameManager.instance.keyCollected)
@@ -104,6 +129,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             else
                 UIManager.instance.ShowUIMessage("Collect the key first!");
             //congratulation \n you passed!
+        }
+
+        if(collision.transform.tag == "Flag")
+        {
+            PhotonNetwork.Disconnect();
         }
     }
 
@@ -137,7 +167,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         foreach (Collider collider in colliders)
         {
             // Check if collider has a "Wall" tag
-            if (collider.CompareTag("Wall"))
+            if (collider.CompareTag("WallHor") || collider.CompareTag("OuterWall") ||
+                collider.CompareTag("WallVer") || collider.CompareTag("WallJoint"))
             {
                 // Calculate direction from sphere center to collider's position
                 Vector3 direction = (collider.transform.position - transform.position).normalized;
@@ -172,18 +203,34 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             }
         }
 
-        //if (GameMapGenerator.isStarted)
-        //{            
-        //    if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) MovePlayerWithKeyboardInput();
-        //    if (Application.platform == RuntimePlatform.Android && !movePhysically) MovePlayerWithAccelerometer();
-        //    if (Application.platform == RuntimePlatform.Android && movePhysically) MovePlayerWithPhysicalInput();
-        //}
-
         if (PhotonNetwork.IsConnected && photonView.IsMine && GameMapGenerator.isStarted)
         {
             if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) MovePlayerWithKeyboardInput();
             if (Application.platform == RuntimePlatform.Android && !movePhysically) MovePlayerWithAccelerometer();
             if (Application.platform == RuntimePlatform.Android && movePhysically) MovePlayerWithPhysicalInput();
+
+            if (movingRight || movingLeft || movingUp || movingDown)
+            {
+                anim.Play("Walk");
+            }
+            else
+            {
+                anim.Play("Idle");
+            }
+        }
+
+        if (!PhotonNetwork.IsConnected)
+        {
+            if (Application.platform == RuntimePlatform.WindowsEditor) MovePlayerWithKeyboardInput();
+            
+            if (movingRight || movingLeft || movingUp || movingDown)
+            {
+                anim.Play("Walk");
+            }
+            else
+            {
+                anim.Play("Idle");
+            }
         }
     }
 
@@ -198,7 +245,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         // Get the acceleration along the X-axis
         float xAcceleration = Input.acceleration.x;
         float yAcceleration = Input.acceleration.y;
-
 
         if (xAcceleration > 0)
         {
@@ -414,7 +460,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     async void MovePlayerWithKeyboardInput()
     {
-        float multipleValue = 1f;
+        float multipleValue = 0.6f;        
 
         if(Application.platform == RuntimePlatform.WindowsPlayer)
         {
@@ -423,7 +469,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         if (Input.GetKey(KeyCode.D) && canMoveRight && !movingRight)
         {
-            movingRight = true;
+            movingRight = true;    
 
             Vector3 targetPos = new Vector3(transform.position.x + movePixelValue * multipleValue, transform.position.y, transform.position.z);
 
@@ -436,7 +482,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
         else if (Input.GetKey(KeyCode.A) && canMoveLeft && !movingLeft)
         {
-            movingLeft = true;
+            movingLeft = true;           
 
             Vector3 targetPos = new Vector3(transform.position.x - movePixelValue * multipleValue, transform.position.y, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
@@ -448,7 +494,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
         else if (Input.GetKey(KeyCode.W) && canMoveUp && !movingUp)
         {
-            movingUp = true;
+            movingUp = true;        
 
             Vector3 targetPos = new Vector3(transform.position.x, transform.position.y + movePixelValue * multipleValue, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
@@ -460,7 +506,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
         else if (Input.GetKey(KeyCode.S) && canMoveDown && !movingDown)
         {
-            movingDown = true;
+            movingDown = true;     
 
             Vector3 targetPos = new Vector3(transform.position.x, transform.position.y - movePixelValue * multipleValue, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
@@ -469,7 +515,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
             await Task.Delay(200);
             movingDown = false;
-        }
+        }   
     }
 
     public void RotatePlayer(Vector3 mRotation)
@@ -485,5 +531,46 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     void GetMaxValue()
     {
         maxAccValue = Mathf.Max(accelerometerValues.ToArray());
-    }    
+    }
+
+    public void SelectAnimation(int indexJob, int indexAnimation)
+    {
+        anim.runtimeAnimatorController = characterAni[indexJob - 1] as RuntimeAnimatorController;
+        
+        if(indexAnimation == 0)
+        {
+            anim.Play("Idle");
+        }
+        else
+        {
+            anim.Play("Walk");
+        }                
+    }  
+
+    IEnumerator DelayToShowAnimations()
+    {
+        yield return new WaitForSeconds(3f);
+        anim = this.transform.GetChild(1).gameObject.GetComponent<Animator>();
+        SelectAnimation(jobIndex, 1);
+    }
+
+    #region IPunObservable implementation
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // We own this player: send the others our data
+            stream.SendNext(this.jobIndex);
+            stream.SendNext(this.itemInventory);
+            stream.SendNext(this.playerName);
+        }
+        else
+        {
+            // Network player, receive data
+            this.jobIndex = (int)stream.ReceiveNext();
+            this.itemInventory = (string)stream.ReceiveNext();
+            this.playerName = (string)stream.ReceiveNext();
+        }
+    }
+    #endregion
 }

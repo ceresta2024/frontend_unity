@@ -5,8 +5,11 @@ using System.IO;
 using System;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 
-public class GameMapGenerator : MonoBehaviour
+public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     [Serializable]
     public class PositionInfos
@@ -20,6 +23,15 @@ public class GameMapGenerator : MonoBehaviour
         public List<Vector2> positionPits;
     }
 
+    [Serializable]
+    public class RemovedPosition
+    {
+        public List<Vector2> positionBricksHor;
+        public List<Vector2> positionBricksVer;
+        public List<Vector2> positionBricksJoint;
+    }
+
+    public static GameMapGenerator instance;
     public GameObject cellPrefab;
     public GameObject borderCellPrefab;
     public GameObject exitCellPrefab;
@@ -38,7 +50,11 @@ public class GameMapGenerator : MonoBehaviour
     public List<Vector2> positionForPits = new List<Vector2>();
     public List<Vector2> positionForTeleInput = new List<Vector2>();
     public List<Vector2> positionForTeleOutput = new List<Vector2>();
+    public List<GameObject> generatedObstaclesHor = new List<GameObject>();
+    public List<GameObject> generatedObstaclesVer = new List<GameObject>();
+    public List<GameObject> generatedObstaclesJoint = new List<GameObject>();
     public PositionInfos positionInfo;
+    public RemovedPosition removedInfo;
 
     [Space(10)]
     public List<Vector2> playerSpawnPos = new List<Vector2>();
@@ -51,7 +67,8 @@ public class GameMapGenerator : MonoBehaviour
     public GameObject teleportEntryPrefab;
     public GameObject teleportExitPrefab;
     public int numberOfTeleporters = 5;
-    public static bool isStarted = false;
+    public static bool isStarted;
+    public static string gameMapInfos;
 
     //private List<Vector2> teleportEntryPositions = new List<Vector2>();
     //private List<Vector2> teleportExitPositions = new List<Vector2>();
@@ -105,20 +122,47 @@ public class GameMapGenerator : MonoBehaviour
 
     void Start()
     {
+        instance = this;
+        
         if (gridSizeX <= 0) gridSizeX = 5;
         if (gridSizeY <= 0) gridSizeY = 5;
 
         isStarted = false;
 
-        StartCoroutine(DelayToActivatePlayer());        
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(DelayToActivatePlayer());
+        }               
     }
 
     void GenerateGridWithObstacles()
     {
-        // Load map data               
+        // Load map data
+        string jsonData = "";
 
-        string jsonData = PlayerPrefs.GetString("INFOS_ROOM1");
+        jsonData = PlayerPrefs.GetString("INFOS_ROOM1");               
+
         positionInfo = JsonUtility.FromJson<PositionInfos>(jsonData);
+
+        if(gameMapInfos != null)
+        {
+            removedInfo = JsonUtility.FromJson<RemovedPosition>(gameMapInfos);
+
+            for (int i = 0; i < removedInfo.positionBricksHor.Count; i++)
+            {
+                positionInfo.positionBricksHor.Remove(removedInfo.positionBricksHor[i]);
+            }
+
+            for (int i = 0; i < removedInfo.positionBricksVer.Count; i++)
+            {
+                positionInfo.positionBricksVer.Remove(removedInfo.positionBricksVer[i]);
+            }
+
+            for (int i = 0; i < removedInfo.positionBricksJoint.Count; i++)
+            {
+                positionInfo.positionBricksJoint.Remove(removedInfo.positionBricksJoint[i]);
+            }
+        }                
 
         Vector2 startPosition = new Vector2(transform.position.x - (gridSizeX / 2) * cellSize, transform.position.y + (gridSizeY / 2) * cellSize);
 
@@ -136,12 +180,12 @@ public class GameMapGenerator : MonoBehaviour
                 // Check if it's a border cell
                 if (y == 0 || y == gridSizeY - 1)
                 {
-                    prefabToInstantiate = obstaclePrefab[5];
+                    prefabToInstantiate = obstaclePrefab[9];
                     isWall = true;
                 }
                 else if (x == gridSizeX - 1 || x == 0)
                 {
-                    prefabToInstantiate = obstaclePrefab[7];
+                    prefabToInstantiate = obstaclePrefab[10];
                     isWall = true;
                 }
 
@@ -214,11 +258,14 @@ public class GameMapGenerator : MonoBehaviour
         for (int i = 0; i < positionInfo.positionBricksHor.Count; i++)
         {
             Vector2 spawnPositionForBricks = startPosition + new Vector2((positionInfo.positionBricksHor[i].x) * cellSize, -(positionInfo.positionBricksHor[i].y) * cellSize);
+            //GameObject newObstacle = PhotonNetwork.Instantiate(obstaclePrefab[5].name, spawnPositionForBricks, Quaternion.identity, 0);
             GameObject newObstacle = Instantiate(obstaclePrefab[5], spawnPositionForBricks, Quaternion.identity);
             newObstacle.transform.parent = transform;
+            newObstacle.GetComponent<WallInfo>().wallCoordinate = positionInfo.positionBricksHor[i];
 
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
+            generatedObstaclesHor.Add(newObstacle);
         }
 
         for (int i = 0; i < positionInfo.positionBricksVer.Count; i++)
@@ -226,9 +273,11 @@ public class GameMapGenerator : MonoBehaviour
             Vector2 spawnPositionForBricks = startPosition + new Vector2((positionInfo.positionBricksVer[i].x) * cellSize, -(positionInfo.positionBricksVer[i].y + 1) * cellSize);
             GameObject newObstacle = Instantiate(obstaclePrefab[7], spawnPositionForBricks, Quaternion.identity);
             newObstacle.transform.parent = transform;
+            newObstacle.GetComponent<WallInfo>().wallCoordinate = positionInfo.positionBricksVer[i];
 
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
+            generatedObstaclesVer.Add(newObstacle);
         }
 
         for (int i = 0; i < positionInfo.positionBricksJoint.Count; i++)
@@ -236,9 +285,11 @@ public class GameMapGenerator : MonoBehaviour
             Vector2 spawnPositionForBricks = startPosition + new Vector2((positionInfo.positionBricksJoint[i].x) * cellSize, -(positionInfo.positionBricksJoint[i].y) * cellSize);
             GameObject newObstacle = Instantiate(obstaclePrefab[8], spawnPositionForBricks, Quaternion.identity);
             newObstacle.transform.parent = transform;
+            newObstacle.GetComponent<WallInfo>().wallCoordinate = positionInfo.positionBricksJoint[i];
 
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
+            generatedObstaclesJoint.Add(newObstacle);
         }
 
         // Generate roofs
@@ -367,7 +418,6 @@ public class GameMapGenerator : MonoBehaviour
         //File.WriteAllText(saveFilePath, saveWallPositions);
     }
 
-
     bool IsPositionOccupied(Vector2 position, int width, int height)
     {
         Collider[] colliders = Physics.OverlapBox(position, new Vector3(width * cellSize / 10, height * cellSize / 10, 0.1f));
@@ -425,15 +475,90 @@ public class GameMapGenerator : MonoBehaviour
     }
 
     IEnumerator DelayToActivatePlayer()
-    {        
+    {
         GenerateGridWithObstacles();
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
 
         DisableExtraCells();
         
         yield return new WaitForSeconds(0.1f);
         ActivatePlayer();
         isStarted = true;
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        PhotonNetwork.AddCallbackTarget(this);
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        byte eventCode = photonEvent.Code;
+
+        if (eventCode == 2)
+        {
+            object[] infos = (object[])photonEvent.CustomData;
+
+            if (!isStarted)
+            {
+                string wallInfos = infos[0].ToString();
+                gameMapInfos = wallInfos;
+
+                StartCoroutine(DelayToActivatePlayer());
+            }            
+        }
+        else if (eventCode == 5)
+        {
+            object[] infos = (object[])photonEvent.CustomData;
+
+            switch ((int)infos[1])
+            {
+                case 0:
+                    {
+                        int removeIndex = positionInfo.positionBricksHor.IndexOf((Vector2)infos[0]);         
+                        generatedObstaclesHor[removeIndex].gameObject.SetActive(false);
+                        generatedObstaclesHor[removeIndex].gameObject.transform.position = new Vector3(10000f, 10000f, 10000f);
+
+                        removedInfo.positionBricksHor.Add((Vector2)infos[0]);
+                        generatedObstaclesHor.RemoveAt(removeIndex);
+                        positionInfo.positionBricksHor.RemoveAt(removeIndex);
+                    }
+                    
+                    break;
+                case 1:
+                    {
+                        int removeIndex = positionInfo.positionBricksVer.IndexOf((Vector2)infos[0]);                     
+                        generatedObstaclesVer[removeIndex].gameObject.SetActive(false);
+                        generatedObstaclesVer[removeIndex].gameObject.transform.position = new Vector3(10000f, 10000f, 10000f);
+
+                        removedInfo.positionBricksVer.Add((Vector2)infos[0]);
+                        generatedObstaclesVer.RemoveAt(removeIndex);
+                        positionInfo.positionBricksVer.RemoveAt(removeIndex);
+                    }
+
+                    break;
+                case 2:
+                    {
+                        int removeIndex = positionInfo.positionBricksJoint.IndexOf((Vector2)infos[0]);                   
+                        generatedObstaclesJoint[removeIndex].gameObject.SetActive(false);
+                        generatedObstaclesJoint[removeIndex].gameObject.transform.position = new Vector3(10000f, 10000f, 10000f);
+
+                        removedInfo.positionBricksJoint.Add((Vector2)infos[0]);
+                        generatedObstaclesJoint.RemoveAt(removeIndex);
+                        positionInfo.positionBricksJoint.RemoveAt(removeIndex);
+                    }
+
+                    break;
+
+            }
+        }
     }
 }

@@ -4,6 +4,8 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.SceneManagement;
+using ExitGames.Client.Photon;
+using System;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -31,17 +33,17 @@ public class GameManager : MonoBehaviourPunCallbacks
             player = PhotonNetwork.Instantiate(prefabPlayer.name, new Vector3(-0.13f, -0.16f, 0), Quaternion.identity, 0);
         }
 
-        //if(!PhotonNetwork.IsConnected)
-        //{
-        //    player = Instantiate(prefabPlayer, new Vector3(-0.13f, -0.16f, 0), Quaternion.identity);
-        //}
+        if (!PhotonNetwork.IsConnected)
+        {
+            player = Instantiate(prefabPlayer, new Vector3(-0.13f, -0.16f, 0), Quaternion.identity);
+        }
 
         instance = this;        
     }
 
     void Start()
     {
-        
+       
     }
 
     public override void OnPlayerEnteredRoom(Player other)
@@ -55,12 +57,10 @@ public class GameManager : MonoBehaviourPunCallbacks
                 PhotonNetwork.CurrentRoom.IsVisible = false;
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
-        }
-    }
 
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        //PhotonNetwork.Disconnect();
+            string wallInfos = JsonUtility.ToJson(GameMapGenerator.instance.removedInfo);         
+            SyncWallInfos(new object[] { wallInfos });
+        }        
     }
 
     public override void OnPlayerLeftRoom(Player other)
@@ -73,4 +73,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             PhotonNetwork.CurrentRoom.IsVisible = true;
         }
     }
+
+    public void SyncWallInfos(object[] content)
+    {
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(2, content, raiseEventOptions, SendOptions.SendReliable);
+    }        
 }
