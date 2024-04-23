@@ -6,8 +6,6 @@ public static class SpriteExploder
 {
     public static List<GameObject> GenerateTriangularPieces(GameObject source, int extraPoints = 0, int subshatterSteps = 0, Material mat = null)
     {
-        List<GameObject> pieces = new();
-
         if (mat == null)
         {
             mat = CreateFragmentMaterial(source);
@@ -20,66 +18,119 @@ public static class SpriteExploder
         source.transform.localRotation = Quaternion.identity;
 
         //get rigidbody information
-        Vector2 origVelocity = source.GetComponent<Rigidbody2D>().velocity;
+        var origVelocity = source.GetComponent<Rigidbody2D>().velocity;
+        var origBodyType = source.GetComponent<Rigidbody2D>().bodyType;
 
         //get collider information
 
         PolygonCollider2D sourcePolyCollider = source.GetComponent<PolygonCollider2D>();
         BoxCollider2D sourceBoxCollider = source.GetComponent<BoxCollider2D>();
-        List<Vector2> points = new();
-        List<Vector2> borderPoints = new();
+
+        List<GameObject> fragments = new();
 
         //add points from the present collider
         if (sourcePolyCollider != null)
         {
-            points = GetPoints(sourcePolyCollider);
-            borderPoints = GetPoints(sourcePolyCollider);
+            for (int i = 0; i < sourcePolyCollider.pathCount; i++)
+            {
+                List<GameObject> pieces = new();
+                List<Vector2> points;
+                List<Vector2> borderPoints;
+                points = GetPoints(sourcePolyCollider, i);
+                borderPoints = GetPoints(sourcePolyCollider, i);
+
+                //create a bounding rectangle based on the polygon points
+                Rect rect = GetRect(source);
+
+                //if the target polygon is a triangle, generate a point in the middle to allow for fracture
+                if (points.Count == 3)
+                {
+                    points.Add((points[0] + points[1] + points[2]) / 3);
+                }
+
+                for (int j = 0; j < extraPoints; j++)
+                {
+                    points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
+                }
+
+                Voronoi voronoi = new(points, null, rect);
+
+                List<List<Vector2>> clippedTriangles;
+                foreach (Triangle tri in voronoi.Triangles())
+                {
+                    clippedTriangles = ClipperHelper.Clip(borderPoints, tri);
+                    foreach (List<Vector2> triangle in clippedTriangles)
+                    {
+                        pieces.Add(GenerateTriangularPiece(source, triangle, origBodyType, origVelocity, origScale, origRotation, mat));
+                    }
+                }
+
+                List<GameObject> morePieces = new();
+                if (subshatterSteps > 0)
+                {
+                    subshatterSteps--;
+                    foreach (GameObject piece in pieces)
+                    {
+                        morePieces.AddRange(GenerateTriangularPieces(piece, extraPoints, subshatterSteps, mat));
+                        GameObject.DestroyImmediate(piece);
+                    }
+                }
+                else
+                {
+                    morePieces = pieces;
+                }
+                fragments.AddRange(morePieces);
+            }
+
         }
         else if (sourceBoxCollider != null)
         {
+            List<GameObject> pieces = new();
+            List<Vector2> points;
+            List<Vector2> borderPoints;
             points = GetPoints(sourceBoxCollider);
             borderPoints = GetPoints(sourceBoxCollider);
-        }
 
-        //create a bounding rectangle based on the polygon points
-        Rect rect = GetRect(source);
+            //create a bounding rectangle based on the polygon points
+            Rect rect = GetRect(source);
 
-        //if the target polygon is a triangle, generate a point in the middle to allow for fracture
-        if (points.Count == 3)
-        {
-            points.Add((points[0] + points[1] + points[2]) / 3);
-        }
-
-        for (int i = 0; i < extraPoints; i++)
-        {
-            points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
-        }
-
-
-        Voronoi voronoi = new(points, null, rect);
-
-        List<List<Vector2>> clippedTriangles;
-        foreach (Triangle tri in voronoi.Triangles())
-        {
-            clippedTriangles = ClipperHelper.Clip(borderPoints, tri);
-            foreach (List<Vector2> triangle in clippedTriangles)
+            //if the target polygon is a triangle, generate a point in the middle to allow for fracture
+            if (points.Count == 3)
             {
-                pieces.Add(GenerateTriangularPiece(source, triangle, origVelocity, origScale, origRotation, mat));
+                points.Add((points[0] + points[1] + points[2]) / 3);
             }
-        }
-        List<GameObject> morePieces = new();
-        if (subshatterSteps > 0)
-        {
-            subshatterSteps--;
-            foreach (GameObject piece in pieces)
+
+            for (int i = 0; i < extraPoints; i++)
             {
-                morePieces.AddRange(GenerateTriangularPieces(piece, extraPoints, subshatterSteps, mat));
-                GameObject.DestroyImmediate(piece);
+                points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
             }
-        }
-        else
-        {
-            morePieces = pieces;
+
+            Voronoi voronoi = new(points, null, rect);
+
+            List<List<Vector2>> clippedTriangles;
+            foreach (Triangle tri in voronoi.Triangles())
+            {
+                clippedTriangles = ClipperHelper.Clip(borderPoints, tri);
+                foreach (List<Vector2> triangle in clippedTriangles)
+                {
+                    pieces.Add(GenerateTriangularPiece(source, triangle, origBodyType, origVelocity, origScale, origRotation, mat));
+                }
+            }
+            List<GameObject> morePieces = new();
+            if (subshatterSteps > 0)
+            {
+                subshatterSteps--;
+                foreach (GameObject piece in pieces)
+                {
+                    morePieces.AddRange(GenerateTriangularPieces(piece, extraPoints, subshatterSteps, mat));
+                    GameObject.DestroyImmediate(piece);
+                }
+            }
+            else
+            {
+                morePieces = pieces;
+            }
+            fragments.AddRange(morePieces);
         }
 
         //reset transform information
@@ -88,13 +139,16 @@ public static class SpriteExploder
 
         Resources.UnloadUnusedAssets();
 
-        return morePieces;
+        return fragments;
     }
 
-    private static GameObject GenerateTriangularPiece(GameObject source, List<Vector2> tri, Vector2 origVelocity, Vector3 origScale, Quaternion origRotation, Material mat)
+    private static GameObject GenerateTriangularPiece(GameObject source, List<Vector2> tri, RigidbodyType2D origBodyType, Vector2 origVelocity, Vector3 origScale, Quaternion origRotation, Material mat)
     {
         //Create Game Object and set transform settings properly
-        GameObject piece = new(source.name + " piece");
+        GameObject piece = new(source.name + " piece")
+        {
+            tag = "Wall"
+        };
         piece.transform.position = source.transform.position;
         piece.transform.rotation = source.transform.rotation;
         piece.transform.localScale = source.transform.localScale;
@@ -150,17 +204,14 @@ public static class SpriteExploder
 
         //Create and Add Rigidbody
         Rigidbody2D rigidbody = piece.AddComponent<Rigidbody2D>();
+        rigidbody.bodyType = origBodyType;
         rigidbody.velocity = origVelocity;
-
-
 
         return piece;
     }
 
     public static List<GameObject> GenerateVoronoiPieces(GameObject source, int extraPoints = 0, int subshatterSteps = 0, Material mat = null)
     {
-        List<GameObject> pieces = new();
-
         if (mat == null)
         {
             mat = CreateFragmentMaterial(source);
@@ -174,55 +225,101 @@ public static class SpriteExploder
 
         //get rigidbody information
         Vector2 origVelocity = source.GetComponent<Rigidbody2D>().velocity;
+        var origBodyType = source.GetComponent<Rigidbody2D>().bodyType;
 
         //get collider information
         PolygonCollider2D sourcePolyCollider = source.GetComponent<PolygonCollider2D>();
         BoxCollider2D sourceBoxCollider = source.GetComponent<BoxCollider2D>();
-        List<Vector2> points = new List<Vector2>();
-        List<Vector2> borderPoints = new List<Vector2>();
+        List<GameObject> fragments = new();
         if (sourcePolyCollider != null)
         {
-            points = GetPoints(sourcePolyCollider);
-            borderPoints = GetPoints(sourcePolyCollider);
+            for (int i = 0; i < sourcePolyCollider.pathCount; i++)
+            {
+                List<GameObject> pieces = new();
+                List<Vector2> points;
+                List<Vector2> borderPoints;
+                points = GetPoints(sourcePolyCollider, i);
+                borderPoints = GetPoints(sourcePolyCollider, i);
+
+                Rect rect = GetRect(source);
+
+                for (int j = 0; j < extraPoints; j++)
+                {
+                    points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
+                }
+
+
+                Voronoi voronoi = new(points, null, rect);
+                List<List<Vector2>> clippedRegions;
+                foreach (List<Vector2> region in voronoi.Regions())
+                {
+                    clippedRegions = ClipperHelper.Clip(borderPoints, region);
+                    foreach (List<Vector2> clippedRegion in clippedRegions)
+                    {
+                        pieces.Add(GenerateVoronoiPiece(source, clippedRegion, origBodyType, origVelocity, origScale, origRotation, mat));
+                    }
+                }
+
+                List<GameObject> morePieces = new();
+                if (subshatterSteps > 0)
+                {
+                    subshatterSteps--;
+                    foreach (GameObject piece in pieces)
+                    {
+                        morePieces.AddRange(GenerateVoronoiPieces(piece, extraPoints, subshatterSteps));
+                        GameObject.DestroyImmediate(piece);
+                    }
+                }
+                else
+                {
+                    morePieces = pieces;
+                }
+                fragments.AddRange(morePieces);
+            }
+
         }
         else if (sourceBoxCollider != null)
         {
+            List<GameObject> pieces = new();
+            List<Vector2> points;
+            List<Vector2> borderPoints;
             points = GetPoints(sourceBoxCollider);
             borderPoints = GetPoints(sourceBoxCollider);
-        }
 
-        Rect rect = GetRect(source);
+            Rect rect = GetRect(source);
 
-        for (int i = 0; i < extraPoints; i++)
-        {
-            points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
-        }
-
-
-        Voronoi voronoi = new(points, null, rect);
-        List<List<Vector2>> clippedRegions;
-        foreach (List<Vector2> region in voronoi.Regions())
-        {
-            clippedRegions = ClipperHelper.Clip(borderPoints, region);
-            foreach (List<Vector2> clippedRegion in clippedRegions)
+            for (int i = 0; i < extraPoints; i++)
             {
-                pieces.Add(GenerateVoronoiPiece(source, clippedRegion, origVelocity, origScale, origRotation, mat));
+                points.Add(new Vector2(Random.Range(rect.width / -2, rect.width / 2), Random.Range(rect.height / -2, rect.height / 2)));
             }
-        }
 
-        List<GameObject> morePieces = new();
-        if (subshatterSteps > 0)
-        {
-            subshatterSteps--;
-            foreach (GameObject piece in pieces)
+
+            Voronoi voronoi = new(points, null, rect);
+            List<List<Vector2>> clippedRegions;
+            foreach (List<Vector2> region in voronoi.Regions())
             {
-                morePieces.AddRange(GenerateVoronoiPieces(piece, extraPoints, subshatterSteps));
-                GameObject.DestroyImmediate(piece);
+                clippedRegions = ClipperHelper.Clip(borderPoints, region);
+                foreach (List<Vector2> clippedRegion in clippedRegions)
+                {
+                    pieces.Add(GenerateVoronoiPiece(source, clippedRegion, origBodyType, origVelocity, origScale, origRotation, mat));
+                }
             }
-        }
-        else
-        {
-            morePieces = pieces;
+
+            List<GameObject> morePieces = new();
+            if (subshatterSteps > 0)
+            {
+                subshatterSteps--;
+                foreach (GameObject piece in pieces)
+                {
+                    morePieces.AddRange(GenerateVoronoiPieces(piece, extraPoints, subshatterSteps));
+                    GameObject.DestroyImmediate(piece);
+                }
+            }
+            else
+            {
+                morePieces = pieces;
+            }
+            fragments.AddRange(morePieces);
         }
 
         //reset transform information
@@ -231,13 +328,16 @@ public static class SpriteExploder
 
         Resources.UnloadUnusedAssets();
 
-        return morePieces;
+        return fragments;
     }
 
-    private static GameObject GenerateVoronoiPiece(GameObject source, List<Vector2> region, Vector2 origVelocity, Vector3 origScale, Quaternion origRotation, Material mat)
+    private static GameObject GenerateVoronoiPiece(GameObject source, List<Vector2> region, RigidbodyType2D origBodyType, Vector2 origVelocity, Vector3 origScale, Quaternion origRotation, Material mat)
     {
         //Create Game Object and set transform settings properly
-        GameObject piece = new GameObject(source.name + " piece");
+        GameObject piece = new(source.name + " piece")
+        {
+            tag = "Wall"
+        };
         piece.transform.position = source.transform.position;
         piece.transform.rotation = source.transform.rotation;
         piece.transform.localScale = source.transform.localScale;
@@ -290,8 +390,7 @@ public static class SpriteExploder
         //Create and Add Rigidbody
         Rigidbody2D rigidbody = piece.AddComponent<Rigidbody2D>();
         rigidbody.velocity = origVelocity;
-
-
+        rigidbody.bodyType = origBodyType;
 
         return piece;
     }
@@ -323,11 +422,11 @@ public static class SpriteExploder
     /// </summary>
     /// <param name="collider">source polygon collider</param>
     /// <returns>list of points</returns>
-    private static List<Vector2> GetPoints(PolygonCollider2D collider)
+    private static List<Vector2> GetPoints(PolygonCollider2D collider, int index)
     {
         List<Vector2> points = new();
 
-        foreach (Vector2 point in collider.GetPath(0))
+        foreach (Vector2 point in collider.GetPath(index))
         {
             points.Add(point);
         }
@@ -413,9 +512,9 @@ public static class SpriteExploder
         {
 
             float x = (vertices[i].x - botLeft.x) / texWidth;
-            x = ScaleRange(x, 0, 1, uvMin.x, uvMax.x);
+            // x = ScaleRange(x, 0, 1, uvMin.x, uvMax.x);
             float y = (vertices[i].y - botLeft.y) / texHeight;
-            y = ScaleRange(y, 0, 1, uvMin.y, uvMax.y);
+            // y = ScaleRange(y, 0, 1, uvMin.y, uvMax.y);
 
             uv[i] = new Vector2(x, y);
         }

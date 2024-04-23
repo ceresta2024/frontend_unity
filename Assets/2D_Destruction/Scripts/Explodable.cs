@@ -40,7 +40,7 @@ public class Explodable : MonoBehaviour
         {
             foreach (GameObject frag in fragments)
             {
-                frag.transform.parent = null;
+                frag.transform.parent = transform.parent;
                 frag.SetActive(true);
             }
         }
