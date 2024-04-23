@@ -4,9 +4,20 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Road
   - Wall
-  - Tunnel Exit
-  - Tunnel Enterance
+  - Grass
+  - Pit
+  - TeleportEntry
+  - TeleportExit
+  - Flame
+  - Key
+  - Thorn
+  - Flag
+  - OuterWall
+  - WallHor
+  - WallVer
+  - WallJoint
   layers:
   - Default
   - TransparentFX
