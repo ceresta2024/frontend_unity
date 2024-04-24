@@ -124,7 +124,8 @@ public class ShopManager : MonoBehaviour
         LoginManager.Instance.GetGold();
         UIController.Instance.GiveNotification("Sell Item: "+ response.message);
         UIController.Instance.inventoryQtyPanel.SetActive(false);
-        
+
+        UIController.Instance.loadingInventoryIcon.SetActive(false);
         GetInventoryList();
        
     }
@@ -165,6 +166,8 @@ public class ShopManager : MonoBehaviour
         }
         UIController.Instance.shopQtyPanel.SetActive(false);
         LoginManager.Instance.GetGold();
+
+        UIController.Instance.loadingShopIcon.SetActive(false);
     }
 
     public void GetItems()

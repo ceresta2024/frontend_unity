@@ -49,6 +49,8 @@ public class UIController : MonoBehaviour
     public TMP_InputField inventoryQtyInput;
     public Image inventoryItemImage;
 
+    public GameObject loadingShopIcon;
+    public GameObject loadingInventoryIcon;
 
     [Header("Job Req. Ref")]
    // public ItemRequire reqItem;

@@ -142,10 +142,22 @@ public class LoginManager : MonoBehaviour
             {
                 ShopManager.Instance.GetInventoryList();
             }
+
+            GetJobs();
         }
         else
         {
-            UIController.Instance.GiveNotification(response.detail);
+            if((response.detail!= null)&&(string.IsNullOrEmpty(response.detail)))
+            {
+                UIController.Instance.GiveNotification(response.detail);
+            }
+            else
+            {
+                UIController.Instance.GiveNotification("Please check your credentials again.");
+            }
+           
+            Debug.Log("No access token on login");
+
         }
       /*  if (response.status == 1)
         {
@@ -162,7 +174,7 @@ public class LoginManager : MonoBehaviour
 
         }*/
         Debug.Log(response.message);
-        GetJobs();
+        
         // UIController.Instance.GiveNotification(response.message);
 
     }

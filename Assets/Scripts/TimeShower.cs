@@ -65,7 +65,8 @@ public class TimeShower : MonoBehaviour
 
 
         //GET LOCAL TIME
-        DateTime currentTime = DateTime.Now;
+        // DateTime currentTime = DateTime.Now;
+        DateTime currentTime = DateTime.UtcNow;
         string formattedTime = currentTime.ToString("HH:mm:ss");
         string[] partsLocal = formattedTime.Split(':');
         int localHours = int.Parse(partsLocal[0]); 
@@ -91,10 +92,10 @@ public class TimeShower : MonoBehaviour
 
 
         //GET LOCAL TIME
-        DateTime currentTime = DateTime.Now;
-
-        TimeSpan difference = currentTime - utcTime;
-
+        // DateTime currentTime = DateTime.Now;
+        DateTime currentTime = DateTime.UtcNow;
+        // TimeSpan difference = currentTime - utcTime;
+        TimeSpan difference = utcTime - currentTime;
         Debug.Log($"start_time API TIME: {utcTime} |  Local Time: {currentTime}");
         Debug.Log("COUNTDOWN TIME: " + difference.Hours + ":" + difference.Minutes + ":" + difference.Seconds);
 
