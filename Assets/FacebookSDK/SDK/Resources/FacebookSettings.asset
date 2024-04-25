@@ -24,7 +24,7 @@ MonoBehaviour:
   status: 1
   xfbml: 0
   frictionlessRequests: 1
-  androidKeystorePath: D:\BlueCreazione\Ceresta/ceresta.keystore
+  androidKeystorePath: E:\SourceCode\Ceresta\ceresta.keystore
   iosURLSuffix: 
   appLinkSchemes:
   - list: []

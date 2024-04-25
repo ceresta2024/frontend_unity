@@ -85,18 +85,21 @@ namespace Facebook.Unity.Example
             }
         }
 
-        private string GetPath(string filename) {
+        private string GetPath(string filename)
+        {
             string path = Path.Combine(Application.streamingAssetsPath, filename);
 
             // Android cannot access StreamingAssets directly because they are packaged into an `apk`
-            #if UNITY_ANDROID
+#if UNITY_ANDROID
             byte[] data = null;
 
             // Retrieve packaged data via `UnityWebRequest`
             var request = UnityWebRequest.Get(path);
             request.SendWebRequest();
-            while (!request.isDone) {
-                if (request.isNetworkError || request.isHttpError) {
+            while (!request.isDone)
+            {
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+                {
                     break;
                 }
             }
@@ -105,7 +108,7 @@ namespace Facebook.Unity.Example
             // Write the data so it can be uploaded
             path = Path.Combine(Application.persistentDataPath, filename);
             System.IO.File.WriteAllBytes(path, data);
-            #endif
+#endif
 
             return path;
         }

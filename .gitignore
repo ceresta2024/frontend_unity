@@ -25,7 +25,6 @@
 
 # Visual Studio cache directory
 .vs/
-.vsconfig
 
 # Gradle cache directory
 .gradle/
@@ -38,7 +37,7 @@ ExportedObj/
 *.sln
 *.suo
 *.tmp
-*.usertouc
+*.user
 *.userprefs
 *.pidb
 *.booproj
@@ -71,5 +70,4 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-/Assets/Unity.VisualScripting.Generated
 /test_BurstDebugInformation_DoNotShip

@@ -54,7 +54,7 @@ public class LogScroller : MonoBehaviour {
     texts.Insert(0, formattedText);
     Text textComp = nText.AddComponent<Text>();
     textComp.text = formattedText;
-    textComp.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+    textComp.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
     textComp.color = new Color(1, 1, 1, 1);
   }
 }

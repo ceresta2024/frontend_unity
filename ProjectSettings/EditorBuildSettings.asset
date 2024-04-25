@@ -6,19 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/AuthScene.unity
+    guid: cbbd0610e029b6d4bb4ee6deb462989a
+  - enabled: 1
     path: Assets/Scenes/MenuScene.unity
-    guid: 5cecf02ed2fb10b49be585a67fb34c1f
-  - enabled: 0
-    path: Assets/Scenes/GameScene01.unity
-    guid: fdb8898dbd7b0ef479ee798a117b233c
+    guid: 665410a30ccc3f44c9566b41c512750a
   - enabled: 1
-    path: Assets/Scenes/GameScene3.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
-    path: Assets/Scenes/SettingsScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/GameScene.unity
+    guid: b4a76d7e1c62aac4bbc0648a676be72f
   m_configObjects:
-    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 537fb34e4b04be94b98f9c4e214dec45, type: 2}
-    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 1398311e977e5b443b0c66374672663f, type: 2}
-    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: b0b119f2df59a0a4e870851780224790, type: 2}
-    com.unity.addressableassets: {fileID: 11400000, guid: fe03bb2efaee208449334efed909384c, type: 2}
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 5745f1d6c0bb9a440babf8328d0b6bbf, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: ea3ea1d80bc2d8f47b1f3774fd5dc67e, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 407121b8ca3a5fb42b3926bc39027791, type: 2}
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 44769cac7020790438e83520f2867354, type: 2}
