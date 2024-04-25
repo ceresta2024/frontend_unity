@@ -28,19 +28,12 @@ public class MainPun : MonoBehaviourPunCallbacks
     private void Awake()
     {
         isPlaying = false;
-        isConnectedFirst = true;
-
-        //if (Application.platform == RuntimePlatform.WindowsPlayer)
-        //{
-        //    SceneManager.LoadScene("RoomCreate");
-        //}
-        
-        //PhotonNetwork.AutomaticallySyncScene = true;        
+        isConnectedFirst = true;     
     }
 
     void Start()
     {
-        //PhotonNetwork.NickName = System.DateTime.Now.Millisecond.ToString();    
+          
     }
 
     void Update()

@@ -8,6 +8,9 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
+using UnityEngine.AI;
+using UnityEngine.Tilemaps;
+using System.Linq;
 
 public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -59,8 +62,8 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
     [Space(10)]
     public List<Vector2> playerSpawnPos = new List<Vector2>();
 
-    [HideInInspector] public List<Transform> cellTransform = new List<Transform>();
-    [HideInInspector] public List<Vector2> tetrominoTransform = new List<Vector2>();
+    [HideInInspector] public List<Transform> cellTransform = new List<Transform>(); 
+    [HideInInspector] public List<Vector2> tetrominoTransform = new List<Vector2>();    
 
     public List<Transform> listOfSpawnPos = new List<Transform>();
 
@@ -70,9 +73,15 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
     public static bool isStarted;
     public static string gameMapInfos;
 
+    // Path Finding
+    public GameObject flag;
+    [HideInInspector] public List<Transform> pathTransforms = new List<Transform>();
+    [HideInInspector] public List<Vector2Int> pathVectors = new List<Vector2Int>();
+    public GameObject tempObject;
+    public float timer = 0f;  
+
     //private List<Vector2> teleportEntryPositions = new List<Vector2>();
     //private List<Vector2> teleportExitPositions = new List<Vector2>();
-
     //public Text testText;
 
     // Define tetromino shapes
@@ -118,12 +127,13 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
             new int[] {0, 1, 1}
         }
     };
-    
+    private LineRenderer lineRenderer;
 
     void Start()
     {
         instance = this;
-        
+        lineRenderer = GetComponent<LineRenderer>();
+
         if (gridSizeX <= 0) gridSizeX = 5;
         if (gridSizeY <= 0) gridSizeY = 5;
 
@@ -132,8 +142,161 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
         if (PhotonNetwork.IsMasterClient)
         {
             StartCoroutine(DelayToActivatePlayer());
-        }               
+        }
     }
+
+    public void Update()
+    {
+              
+    }    
+    
+
+    // Define a class for representing graph nodes
+    private class Node
+    {
+        public Transform transform;
+        public List<Node> neighbors;
+
+        public Node(Transform transform)
+        {
+            this.transform = transform;
+            neighbors = new List<Node>();
+        }
+    }
+
+    // Perform A* pathfinding
+    public List<Transform> FindPath(Transform startTransform, Transform endTransform, List<Transform> partTransform)
+    {
+        // Create graph nodes from pathTransforms
+        Dictionary<Transform, Node> nodeMap = new Dictionary<Transform, Node>();
+        foreach (Transform pathTransform in partTransform)
+        {
+            nodeMap[pathTransform] = new Node(pathTransform);
+        }
+
+        // Connect neighboring nodes
+        foreach (Transform pathTransform in partTransform)
+        {
+            Node node = nodeMap[pathTransform];
+            foreach (Transform otherTransform in partTransform)
+            {
+                if (pathTransform != otherTransform && CanConnect(pathTransform, otherTransform))
+                {
+                    node.neighbors.Add(nodeMap[otherTransform]);
+                }
+            }
+        }
+
+        // Get corresponding nodes for start and end transforms
+        Node startNode = nodeMap[startTransform];
+        Node endNode = nodeMap[endTransform];
+
+        // Run A* algorithm
+        List<Transform> path = AStar(startNode, endNode, nodeMap.Values.ToList());   
+
+        return path;
+    }
+
+    // A* algorithm implementation
+    private List<Transform> AStar(Node start, Node goal, List<Node> allNodes)
+    {
+        List<Transform> path = new List<Transform>();
+
+        HashSet<Node> closedSet = new HashSet<Node>();
+        Dictionary<Node, Node> cameFrom = new Dictionary<Node, Node>();
+        Dictionary<Node, float> gScore = new Dictionary<Node, float>();
+
+        // Initialize scores for all nodes
+        foreach (Node node in allNodes)
+        {
+            gScore[node] = Mathf.Infinity;
+        }
+
+        // Initialize starting node
+        gScore[start] = 0;
+
+        // Use a simpler heuristic function (distance between nodes)
+        float HeuristicCostEstimate(Node from, Node to) => Vector3.Distance(from.transform.position, to.transform.position);
+
+        // A* loop
+        while (true)
+        {
+            // Find node with lowest fScore in open set
+            Node current = null;
+            float lowestFScore = Mathf.Infinity;
+            foreach (Node node in allNodes)
+            {
+                float fScore = gScore[node] + HeuristicCostEstimate(node, goal);
+                if (!closedSet.Contains(node) && fScore < lowestFScore)
+                {
+                    lowestFScore = fScore;
+                    current = node;
+                }
+            }
+
+            // If current is goal, reconstruct path and return
+            if (current == goal)
+            {
+                path = ReconstructPath(cameFrom, current);
+                break;
+            }
+
+            // Move current from open set to closed set
+            closedSet.Add(current);
+
+            // Update scores for neighboring nodes
+            foreach (Node neighbor in current.neighbors)
+            {
+                if (neighbor == null)
+                {
+                    Debug.LogError("Neighbor node is null.");
+                    continue;
+                }
+
+                if (closedSet.Contains(neighbor))
+                    continue;
+
+                // Ensure neighbor node exists in the graph
+                if (!gScore.ContainsKey(neighbor))
+                {
+                    Debug.LogError("Neighbor node not found in graph.");
+                    continue;
+                }
+
+                float tentativeGScore = gScore[current] + Vector3.Distance(current.transform.position, neighbor.transform.position);
+
+                // Check if the tentative score is better than the current score for the neighbor
+                if (tentativeGScore < gScore[neighbor])
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tentativeGScore;
+                }
+            }
+        }
+
+        return path;
+    }
+
+    // Helper function to check if two nodes can be connected
+    private bool CanConnect(Transform a, Transform b)
+    {
+        // You can define your own criteria for determining if two transforms can be connected
+        // For example, you might check if they are within a certain distance of each other
+        return Vector3.Distance(a.position, b.position) < 1.5f;
+    }
+
+    // Helper function to reconstruct the path from the cameFrom dictionary
+    private List<Transform> ReconstructPath(Dictionary<Node, Node> cameFrom, Node current)
+    {
+        List<Transform> path = new List<Transform>();
+        path.Add(current.transform);
+        while (cameFrom.ContainsKey(current))
+        {
+            current = cameFrom[current];
+            path.Insert(0, current.transform);
+        }
+        return path;
+    }    
 
     void GenerateGridWithObstacles()
     {
@@ -144,6 +307,7 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
 
         positionInfo = JsonUtility.FromJson<PositionInfos>(jsonData);
 
+        // Remove destroyed tiles
         if(gameMapInfos != null)
         {
             removedInfo = JsonUtility.FromJson<RemovedPosition>(gameMapInfos);
@@ -204,6 +368,8 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
                 if (!isWall)
                 {
                     cellTransform.Add(newCell.transform);
+                    pathTransforms.Add(newCell.transform);
+                    pathVectors.Add(new Vector2Int(x, y));
                 }                            
 
                 if (newCell.tag == "Road" && (spawnPosition.x <= -10 && spawnPosition.y <= -10)) playerSpawnPos.Add(spawnPosition);
@@ -266,6 +432,14 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
             generatedObstaclesHor.Add(newObstacle);
+
+            int tempIndex = pathVectors.IndexOf(new Vector2Int((int)positionInfo.positionBricksHor[i].x, (int)positionInfo.positionBricksHor[i].y));
+            
+            if(tempIndex >= 0)
+            {
+                pathTransforms.RemoveAt(tempIndex);
+                pathVectors.RemoveAt(tempIndex);
+            }                
         }
 
         for (int i = 0; i < positionInfo.positionBricksVer.Count; i++)
@@ -278,6 +452,14 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
             generatedObstaclesVer.Add(newObstacle);
+
+            int tempIndex = pathVectors.IndexOf(new Vector2Int((int)(positionInfo.positionBricksVer[i].x), (int)(positionInfo.positionBricksVer[i].y + 1)));
+
+            if (tempIndex >= 0)
+            {
+                pathTransforms.RemoveAt(tempIndex);
+                pathVectors.RemoveAt(tempIndex);
+            }
         }
 
         for (int i = 0; i < positionInfo.positionBricksJoint.Count; i++)
@@ -289,7 +471,15 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
 
             tetrominoTransform.Add(spawnPositionForBricks);
             occupiedPositions.Add(spawnPositionForBricks);
-            generatedObstaclesJoint.Add(newObstacle);
+            generatedObstaclesJoint.Add(newObstacle);      
+
+            int tempIndex = pathVectors.IndexOf(new Vector2Int((int)(positionInfo.positionBricksJoint[i].x), (int)(positionInfo.positionBricksJoint[i].y)));
+            
+            if(tempIndex >= 0)
+            {
+                pathTransforms.RemoveAt(tempIndex);
+                pathVectors.RemoveAt(tempIndex);
+            }
         }
 
         // Generate roofs
@@ -377,6 +567,7 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
             occupiedPositions.Add(spawnPositionForBricks);
         }
 
+        // Generate teleport
         //for (int i = 0; i < positionForTeleInput.Count; i++)
         //{
         //    Vector2 spawnPositionForBricks = startPosition + new Vector2((positionForTeleInput[i].x + 1) * cellSize, -(positionForTeleInput[i].y + 1) * cellSize);
@@ -416,6 +607,57 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
         //positionInfo.positionRoofs = positionForRoofs;
         //string saveWallPositions = JsonUtility.ToJson(positionInfo);
         //File.WriteAllText(saveFilePath, saveWallPositions);
+    }
+
+    // Click path button
+    public void ShowPath()
+    {            
+        ShowShortPath();
+    }
+
+    // Show short path
+    public void ShowShortPath()
+    {
+        List<Transform> targets = new List<Transform>();
+        List<Transform> partTransforms = new List<Transform>();
+
+        Transform flagTarget = tempObject.transform;
+        Transform playerTarget = tempObject.transform;
+        Transform playerPos = tempObject.transform;
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<PhotonView>().AmOwner)
+            {
+                playerPos = players[i].transform;
+                break;
+            }
+        }
+
+        playerTarget = FindNearestTransform(playerPos.gameObject, pathTransforms);
+        partTransforms = FindNearestTransforms(playerPos.gameObject, pathTransforms, 450);
+
+        flagTarget = FindNearestTransform(flag, partTransforms);
+        playerTarget = FindNearestTransform(playerPos.gameObject, partTransforms);
+        //targets.Add(flag.transform);
+
+        List<Transform> paths = FindPath(flagTarget, playerTarget, partTransforms);
+
+        foreach (Transform path in paths)
+        {
+            targets.Add(path);
+        }
+
+        targets.Add(playerPos);
+
+        lineRenderer.positionCount = targets.Count;
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            lineRenderer.SetPosition(i, targets[i].position + new Vector3(0, 0, -3f));
+        }
     }
 
     bool IsPositionOccupied(Vector2 position, int width, int height)
@@ -458,17 +700,75 @@ public class GameMapGenerator : MonoBehaviourPunCallbacks, IOnEventCallback
     //    listOfSpawnPos.RemoveAt(rKey);
     //}
 
+    // Find the nearest transform from player
+    public Transform FindNearestTransform(GameObject player, List<Transform> partTransform)
+    {
+        if (partTransform == null || partTransform.Count == 0)
+        {
+            Debug.LogWarning("No cell transforms to search through.");
+            return null;
+        }
+
+        Transform nearestTransform = null;
+        float minDistance = Mathf.Infinity;
+
+        foreach (Transform pathTransform in partTransform)
+        {
+            float distanceToPlayer = Vector3.Distance(pathTransform.position, player.transform.position);
+            
+            if (distanceToPlayer < minDistance)
+            {
+                minDistance = distanceToPlayer;
+                nearestTransform = pathTransform;
+            }
+        }
+
+        return nearestTransform;
+    }
+
+    // Find nearest transforms from palyer
+    public List<Transform> FindNearestTransforms(GameObject player, List<Transform> partTransforms, int count)
+    {
+        if (partTransforms == null || partTransforms.Count == 0)
+        {
+            Debug.LogWarning("No cell transforms to search through.");
+            return new List<Transform>();
+        }
+
+        List<Transform> nearestTransforms = new List<Transform>();
+        Dictionary<Transform, float> transformDistances = new Dictionary<Transform, float>();
+
+        foreach (Transform pathTransform in partTransforms)
+        {
+            float distanceToPlayer = Vector3.Distance(pathTransform.position, player.transform.position);
+            transformDistances.Add(pathTransform, distanceToPlayer);
+        }
+
+        // Sort the dictionary by value (distance) in ascending order
+        var sortedDistances = transformDistances.OrderBy(x => x.Value);
+
+        // Get the count nearest transforms
+        int countClamped = Mathf.Min(count, sortedDistances.Count());
+        for (int i = 0; i < countClamped; i++)
+        {
+            nearestTransforms.Add(sortedDistances.ElementAt(i).Key);
+        }
+
+        return nearestTransforms;
+    }
+
+    // Show player on the map
     void ActivatePlayer()
     {
         if (!MainPun.isPlaying)
         {
-            int r = UnityEngine.Random.Range(0, listOfSpawnPos.Count);
+            //int r = UnityEngine.Random.Range(0, listOfSpawnPos.Count);
 
-            GameManager.instance.player.transform.position = listOfSpawnPos[r].position;
+            //GameManager.instance.player.transform.position = listOfSpawnPos[r].position;
 
             GameManager.instance.player.GetComponent<SpriteMask>().enabled = true;
 
-            listOfSpawnPos.RemoveAt(r);
+            //listOfSpawnPos.RemoveAt(r);
 
             MainPun.isPlaying = true;
         }                

@@ -380,6 +380,7 @@ MonoBehaviour:
   camFarClip: 1000
   rotationOfCam: {x: 0, y: 0, z: 0}
   rotateWithTarget: 1
+  thiefImage: {fileID: 21300000, guid: c7011b59079f2164c9b2fd0080b442bc, type: 3}
 --- !u!1 &188764
 GameObject:
   m_ObjectHideFlags: 0

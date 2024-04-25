@@ -18,6 +18,7 @@ public class MapObject : MonoBehaviour {
 	RectTransform sprRect;
 	Vector2 screenPos;
 	Transform miniMapTarget;
+	public string playerName;
 
 	void FixedUpdate () {
 		if (owner == null)
@@ -39,6 +40,7 @@ public class MapObject : MonoBehaviour {
 		rt = panelGO.GetComponent<RectTransform> ();
 		mmc = controller;
 		miniMapTarget = mmc.target;
+		playerName = mme.playerName;
 		SetPositionAndRotation ();
 
 	}

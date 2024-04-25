@@ -12,6 +12,7 @@ public class MiniMapEntity{
 	public bool clampInBorder;
 	public float clampDist;
 	public List<GameObject> mapObjects;
+	public string playerName = "";
 }
 
 public class MiniMapComponent : MonoBehaviour {
@@ -39,11 +40,18 @@ public class MiniMapComponent : MonoBehaviour {
 	}
 
 	void OnDisable(){
-		miniMapController.UnregisterMapObject (mmo,this.gameObject);
+		miniMapController.UnregisterMapObject (mmo,this.gameObject);	
 	}
 
 	void OnDestroy(){
 		miniMapController.UnregisterMapObject (mmo,this.gameObject);
+	}
+
+	public void ChangeIcon(GameObject owner)
+    {
+		miniMapController = GameObject.Find("CanvasMiniMap").GetComponent<MiniMapController>();
+		//miniMapController.ChangeIconMapObject(mmo, owner);
+		print("3" + mmo.name);
 	}
 
 	IEnumerator DelayToEnable()
@@ -59,6 +67,11 @@ public class MiniMapComponent : MonoBehaviour {
 		mme.rotateWithObject = rotateWithObject;
 		mme.clampInBorder = clampIconInBorder;
 		mme.clampDist = clampDistance;
+
+		if(this.gameObject.tag == "Player")
+        {
+			mme.playerName = this.gameObject.GetComponent<PlayerManager>().playerName;			
+		}				
 
 		mmo = miniMapController.RegisterMapObject(this.gameObject, mme);
 	}

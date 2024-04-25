@@ -14,48 +14,43 @@ public class ShopManager : MonoBehaviour
     static ShopManager instance;
     public static ShopManager Instance => instance;
 
-  //  public List<Item> allShopItems;
+    //  public List<Item> allShopItems;
     public List<ShopItem> allShopItems;
     public List<ShopItem> allInventoryItems;
     public ShopControl shopControlRef;
 
     public void Awake()
     {
-        if (instance != null)
-            Destroy(gameObject);
-        else
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-            gameObject.name = GetType().Name;
-        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        gameObject.name = GetType().Name;
     }
 
     public void GetStoreList()
     {
-       
+
         WebRequestHandler<GetStoreListResponse> request = new WebRequestHandler<GetStoreListResponse>(OnGotStoreListResponse);
-        string url = "/shop/get_store_list/" ;
-        string accesstoken= PlayerPrefs.GetString("UserAccessToken","");
-        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken ,""));
+        string url = "/shop/get_store_list/";
+        string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
     }
 
     // Response to store list
     private void OnGotStoreListResponse(WebResponse<GetStoreListResponse> response)
     {
-       /* if (response.status == 1)
-        {
-            Debug.Log("Got store list.");
-          //  OnPurchaseResult.Invoke(response.data.items);
-        }
-        else
-        {
-            Debug.Log("Store list issue:" + response.message);
-        }*/
+        /* if (response.status == 1)
+         {
+             Debug.Log("Got store list.");
+           //  OnPurchaseResult.Invoke(response.data.items);
+         }
+         else
+         {
+             Debug.Log("Store list issue:" + response.message);
+         }*/
         // allShopItems = response.data.items;
         // allShopItems = JsonConvert.DeserializeObject<List<Item>>(response.ToString());
         //allShopItems = JsonUtility.FromJson<Item[]>(response);
-       // List<Item> itemList = JsonConvert.DeserializeObject<List<Item>>(json);
+        // List<Item> itemList = JsonConvert.DeserializeObject<List<Item>>(json);
 
         //UIController.Instance.GiveNotification("Got Store List: " + response.message);
         Debug.Log(response.data.data);
@@ -66,7 +61,7 @@ public class ShopManager : MonoBehaviour
         }*/
 
         shopControlRef.LoadShopList();
-        
+
     }
 
     public void GetInventoryList()
@@ -74,7 +69,7 @@ public class ShopManager : MonoBehaviour
         WebRequestHandler<GetInventoryListResponse> request = new WebRequestHandler<GetInventoryListResponse>(OnGotInventoryListResponse);
         string url = "/shop/get_inventory_list/";
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        StartCoroutine(request.SendRequestAsync(url, "GET",accesstoken, ""));
+        StartCoroutine(request.SendRequestAsync(url, "GET", accesstoken, ""));
     }
 
     // Response to inventory list
@@ -94,7 +89,7 @@ public class ShopManager : MonoBehaviour
         Debug.Log("Should have got the inventory list. Response data- " + response.data.data);
         allInventoryItems.Clear();
         allInventoryItems = response.data.data;
-        
+
         shopControlRef.LoadInventoryList();
     }
 
@@ -122,18 +117,19 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log(response);
         LoginManager.Instance.GetGold();
-        UIController.Instance.GiveNotification("Sell Item: "+ response.message);
+        UIController.Instance.GiveNotification("Sell Item: " + response.message);
         UIController.Instance.inventoryQtyPanel.SetActive(false);
-        
+
+        UIController.Instance.loadingInventoryIcon.SetActive(false);
         GetInventoryList();
-       
+
     }
     public void BuyItem(int itemID, int quantity)
     {
         WebRequestHandler<BuyItemResponse> request = new WebRequestHandler<BuyItemResponse>(OnBuyItemResponse);
         string url = "/shop/buy_item/";
         string accesstoken = PlayerPrefs.GetString("UserAccessToken", "");
-        Debug.Log("access token from player prefs: "+ accesstoken);
+        Debug.Log("access token from player prefs: " + accesstoken);
         string data = JsonUtility.ToJson(new BuyRequest(itemID, quantity));
         StartCoroutine(request.SendRequestAsync(url, "POST", accesstoken, data));
     }
@@ -141,18 +137,18 @@ public class ShopManager : MonoBehaviour
     // Response to buy item
     private void OnBuyItemResponse(WebResponse<BuyItemResponse> response)
     {
-       /* if (response.status == 1)
-        {
-            Debug.Log("Bought item succ.");
+        /* if (response.status == 1)
+         {
+             Debug.Log("Bought item succ.");
 
-        }
-        else
-        {
-            Debug.Log("Buying item issue:" + response.message);
-        }*/
+         }
+         else
+         {
+             Debug.Log("Buying item issue:" + response.message);
+         }*/
 
         Debug.Log(response);
-        if (string.IsNullOrEmpty( response.detail))
+        if (string.IsNullOrEmpty(response.detail))
         {
             UIController.Instance.GiveNotification("Buy Item: " + response.message);
             GetInventoryList();
@@ -165,6 +161,8 @@ public class ShopManager : MonoBehaviour
         }
         UIController.Instance.shopQtyPanel.SetActive(false);
         LoginManager.Instance.GetGold();
+
+        UIController.Instance.loadingShopIcon.SetActive(false);
     }
 
     public void GetItems()
@@ -262,7 +260,7 @@ public class BuyRequest
     {
         this.item_id = itemID;
         this.quantity = quantity;
-       
+
     }
 }
 

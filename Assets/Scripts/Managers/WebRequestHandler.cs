@@ -168,7 +168,9 @@ public class WebRequestHandler<T>
 
                 if(endpoint == "/shop/get_inventory_list/")
                 {
-                    PlayerPrefs.SetString("ITEM_INVENTORY", request.downloadHandler.text);        
+                    string tempItem = request.downloadHandler.text;
+                    tempItem = "{\"items\": " + request.downloadHandler.text + " }";
+                    PlayerPrefs.SetString("ITEM_INVENTORY", tempItem);        
                 }
 
                 if (request.downloadHandler.text.StartsWith("["))

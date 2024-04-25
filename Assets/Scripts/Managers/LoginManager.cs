@@ -17,14 +17,9 @@ public class LoginManager : MonoBehaviour
 
     public void Awake()
     {
-        if (instance != null)
-            Destroy(gameObject);
-        else
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-            gameObject.name = GetType().Name;
-        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        gameObject.name = GetType().Name;
     }
     public void Register(string username, string email, string password)
     {

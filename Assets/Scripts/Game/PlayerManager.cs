@@ -53,18 +53,24 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     public int jobIndex;
     public string itemInventory;
     public string playerName;
+    public Vector3 playerRotation;
     private Animator anim;
     public RuntimeAnimatorController[] characterAni;
+    public float moveSpeed;
+    public bool isWalking;
 
     private void Awake()
     {
         instance = this;
+        isWalking = false;
 
         if (photonView.IsMine)
         {
             LocalPlayerInstance = gameObject;
             jobIndex = PlayerPrefs.GetInt("JOB_ID");
-            playerName = PhotonNetwork.NickName + PhotonNetwork.LocalPlayer.UserId;
+            playerName = PhotonNetwork.NickName + ":" + PhotonNetwork.LocalPlayer.UserId;
+            GameUI.playerName = playerName;
+            playerRotation = new Vector3(0, 0, 0);
 
             if(jobIndex == 0)
             {
@@ -72,6 +78,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             }
 
             itemInventory = PlayerPrefs.GetString("ITEM_INVENTORY");
+            GameUI.ownItems = itemInventory;
 
             // Animation Play
             anim = this.transform.GetChild(1).gameObject.GetComponent<Animator>();
@@ -203,7 +210,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
 
-        if (PhotonNetwork.IsConnected && photonView.IsMine && GameMapGenerator.isStarted)
+        if (PhotonNetwork.IsConnected && photonView.IsMine && GameMapGenerator.isStarted && MainPun.isPlaying)
         {
             if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) MovePlayerWithKeyboardInput();
             if (Application.platform == RuntimePlatform.Android && !movePhysically) MovePlayerWithAccelerometer();
@@ -217,20 +224,37 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 anim.Play("Idle");
             }
-        }
 
-        if (!PhotonNetwork.IsConnected)
-        {
-            if (Application.platform == RuntimePlatform.WindowsEditor) MovePlayerWithKeyboardInput();
-            
-            if (movingRight || movingLeft || movingUp || movingDown)
+            // Measure move speed
+            Vector3 acceleration = Input.acceleration;
+            moveSpeed = acceleration.magnitude;                  
+
+            if(moveSpeed > 1f)
             {
-                anim.Play("Walk");
+                isWalking = true;
             }
             else
             {
-                anim.Play("Idle");
+                isWalking = false;
             }
+        }        
+
+        if (PhotonNetwork.IsConnected && GameMapGenerator.isStarted)
+        {
+            if (photonView.IsMine)
+            {                
+                playerRotation = playerFace.localEulerAngles;                
+            }
+            else
+            {
+                playerFace.localEulerAngles = playerRotation;
+            }                        
+        }
+
+        //Test mode
+        if (!PhotonNetwork.IsConnected)
+        {
+            if (Application.platform == RuntimePlatform.WindowsEditor) MovePlayerWithKeyboardInput();
         }
     }
 
@@ -245,6 +269,30 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         // Get the acceleration along the X-axis
         float xAcceleration = Input.acceleration.x;
         float yAcceleration = Input.acceleration.y;
+        float multipleValue = 0;
+
+        if (GameUI.isAcceptedPolice)
+        {
+            if (isWalking)
+            {
+                multipleValue = 240f;
+            }
+            else
+            {
+                multipleValue = 120f;
+            }                        
+        }
+        else
+        {
+            if (isWalking)
+            {
+                multipleValue = 120f;
+            }
+            else
+            {
+                multipleValue = 60f;
+            }
+        }
 
         if (xAcceleration > 0)
         {
@@ -274,8 +322,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             movingRight = true;
             RotatePlayer(new Vector3(0, 0, -90));
+            Vector3 targetPos = new Vector3(transform.position.x + movePixelValue * multipleValue, transform.position.y, transform.position.z);
 
-            Vector3 targetPos = new Vector3(transform.position.x + movePixelValue * 80f, transform.position.y, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
             tween.OnUpdate(() => { if (!canMoveRight) { tween.Kill(); } });
 
@@ -286,8 +334,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             movingLeft = true;
             RotatePlayer(new Vector3(0, 0, 90));
+            Vector3 targetPos = new Vector3(transform.position.x - movePixelValue * multipleValue, transform.position.y, transform.position.z);
 
-            Vector3 targetPos = new Vector3(transform.position.x - movePixelValue * 80f, transform.position.y, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
             tween.OnUpdate(() => { if (!canMoveLeft) { tween.Kill(); } });
 
@@ -298,8 +346,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             movingUp = true;
             RotatePlayer(new Vector3(0, 0, 0));
+            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y + movePixelValue * multipleValue, transform.position.z);
 
-            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y + movePixelValue * 80f, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
             tween.OnUpdate(() => { if (!canMoveUp) { tween.Kill(); } });
 
@@ -310,15 +358,14 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             movingDown = true;
             RotatePlayer(new Vector3(0, 0, 180));
+            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y - movePixelValue * multipleValue, transform.position.z);
 
-            Vector3 targetPos = new Vector3(transform.position.x, transform.position.y - movePixelValue * 80f, transform.position.z);
             Tweener tween = transform.DOMove(targetPos, 0.3f);
             tween.OnUpdate(() => { if (!canMoveDown) { tween.Kill(); } });
 
             await Task.Delay(200);
             movingDown = false;
         }
-
     }
 
     async void MovePlayerWithPhysicalInput()
@@ -464,7 +511,53 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if(Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            multipleValue = 60f;
+            if (GameUI.isAcceptedPolice)
+            {
+                if (isWalking)
+                {
+                    multipleValue = 240f;
+                }
+                else
+                {
+                    multipleValue = 120f;
+                }
+            }
+            else
+            {
+                if (isWalking)
+                {
+                    multipleValue = 120f;
+                }
+                else
+                {
+                    multipleValue = 60f;
+                }
+            }
+        }
+        else
+        {
+            if (GameUI.isAcceptedPolice)
+            {
+                if (isWalking)
+                {
+                    multipleValue = 2.4f;
+                }
+                else
+                {
+                    multipleValue = 1.2f;
+                }
+            }
+            else
+            {
+                if (isWalking)
+                {
+                    multipleValue = 1.2f;
+                }
+                else
+                {
+                    multipleValue = 0.6f;
+                }
+            }
         }
 
         if (Input.GetKey(KeyCode.D) && canMoveRight && !movingRight)
@@ -563,6 +656,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(this.jobIndex);
             stream.SendNext(this.itemInventory);
             stream.SendNext(this.playerName);
+            stream.SendNext(this.playerRotation);
         }
         else
         {
@@ -570,6 +664,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             this.jobIndex = (int)stream.ReceiveNext();
             this.itemInventory = (string)stream.ReceiveNext();
             this.playerName = (string)stream.ReceiveNext();
+            this.playerRotation = (Vector3)stream.ReceiveNext();          
         }
     }
     #endregion

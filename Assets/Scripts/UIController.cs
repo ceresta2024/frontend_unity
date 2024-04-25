@@ -49,9 +49,11 @@ public class UIController : MonoBehaviour
     public TMP_InputField inventoryQtyInput;
     public Image inventoryItemImage;
 
+    public GameObject loadingShopIcon;
+    public GameObject loadingInventoryIcon;
 
     [Header("Job Req. Ref")]
-   // public ItemRequire reqItem;
+    // public ItemRequire reqItem;
     public GameObject redSetJobImage;
     public Button confirmBtn;
 
@@ -89,12 +91,12 @@ public class UIController : MonoBehaviour
 
         if (qty < 1)
         {
-            qty= 1;
+            qty = 1;
             shopQtyInput.text = qty + "";
 
         }
         selectedShopItemQuantity = qty;
-     
+
     }
     public void PlayerHaveReqItemsJob()
     {
@@ -124,7 +126,7 @@ public class UIController : MonoBehaviour
             inventoryQtyInput.text = qty + "";
 
         }
-        
+
         selectedInventoryItemQuantity = qty;
 
     }
@@ -135,7 +137,7 @@ public class UIController : MonoBehaviour
         if (qty < 1)
         {
             qty = 1;
-           
+
         }
         if (qty > 999)
         {
@@ -168,13 +170,13 @@ public class UIController : MonoBehaviour
         PlayerPrefs.SetInt("UserGold", currentGold);
         UpdateGoldText();
     }
-  /*  public void CheckIfUserLoggedIn()
-    {
-        if (!String.IsNullOrEmpty(PlayerPrefs.GetString("Email").ToString()))
-        {
-            UserLoggedInUI();
-        }
-    }*/
+    /*  public void CheckIfUserLoggedIn()
+      {
+          if (!String.IsNullOrEmpty(PlayerPrefs.GetString("Email").ToString()))
+          {
+              UserLoggedInUI();
+          }
+      }*/
 
     public void ReleaseShopInvAddressableImg()
     {
@@ -204,7 +206,7 @@ public class UIController : MonoBehaviour
         profileUsername.text = strings[0];
         playerUsernameText.text = strings[0];
 
-       // playerUsernameText.transform.parent.gameObject.SetActive(true);
+        // playerUsernameText.transform.parent.gameObject.SetActive(true);
         LoginBtnSettings.SetActive(false);
         myProfileBtnSettings.SetActive(true);
         UpdateGoldText();
@@ -222,7 +224,7 @@ public class UIController : MonoBehaviour
         NotifyText.text = notification;
         NotificationPanel.SetActive(true);
 
-        
+
     }
 
 
@@ -250,7 +252,7 @@ public class UIController : MonoBehaviour
     }
     public void UpdateProfileImageLogin()
     {
-        int jobId =   PlayerPrefs.GetInt("UserJobId");
+        int jobId = PlayerPrefs.GetInt("UserJobId");
         string addressableGroup = "Assets/AddressableSprites/Jobs";
 
         foreach (JobItem item in LoginManager.Instance.allJobItems)
@@ -258,7 +260,7 @@ public class UIController : MonoBehaviour
 
             if (item.id == jobId)
             {
-                
+
                 LoadImageAsync(profileImage, addressableGroup + "/" + item.name.ToLower() + ".png");
 
             }

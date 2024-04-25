@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsConnected && !MainPun.isPlaying && PlayerManager.LocalPlayerInstance == null)
         {
-            player = PhotonNetwork.Instantiate(prefabPlayer.name, new Vector3(-0.13f, -0.16f, 0), Quaternion.identity, 0);
+            player = PhotonNetwork.Instantiate(prefabPlayer.name, new Vector3(21.26996f, -139.9034f, 0), Quaternion.identity, 0);
         }
 
         if (!PhotonNetwork.IsConnected)
@@ -49,18 +49,18 @@ public class GameManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player other)
     {
         Debug.Log("OnPlayerEnteredRoom() " + other.NickName); // not seen if you're the player connecting   
-        
+
         if (PhotonNetwork.IsMasterClient)
         {
-            if(PhotonNetwork.CurrentRoom.PlayerCount >= 30)
+            if (PhotonNetwork.CurrentRoom.PlayerCount >= 30)
             {
                 PhotonNetwork.CurrentRoom.IsVisible = false;
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
 
-            string wallInfos = JsonUtility.ToJson(GameMapGenerator.instance.removedInfo);         
+            string wallInfos = JsonUtility.ToJson(GameMapGenerator.instance.removedInfo);
             SyncWallInfos(new object[] { wallInfos });
-        }        
+        }
     }
 
     public override void OnPlayerLeftRoom(Player other)

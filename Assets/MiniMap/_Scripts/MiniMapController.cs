@@ -65,6 +65,7 @@ public class MiniMapController : MonoBehaviour {
 	private Vector3 prevRotOfCam;
 	Vector2 res;
 	Image miniMapPanelImage;
+	public Sprite thiefImage;
 
 	//Initialize everything here
 	public void OnEnable(){
@@ -181,7 +182,8 @@ public class MiniMapController : MonoBehaviour {
 		GameObject curMGO = Instantiate (iconPref);
 		MapObject curMO = curMGO.AddComponent<MapObject> ();
 		curMO.SetMiniMapEntityValues (this,mme,owner,mapCamera,miniMapPanel);
-		ownerIconMap.Add (owner, curMGO);	
+		ownerIconMap.Add (owner, curMGO);
+
 		return owner.GetComponent<MapObject>();
 	}
 
@@ -192,5 +194,5 @@ public class MiniMapController : MonoBehaviour {
 			ownerIconMap.Remove (owner);
 		}
 		Destroy (mmo);
-	}
+	}	
 }

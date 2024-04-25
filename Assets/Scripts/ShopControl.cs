@@ -28,10 +28,10 @@ public class ShopControl : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null)
-        {
-            Destroy(instance);
-        }
+        //if (instance != null)
+        //{
+        //    Destroy(instance);
+        //}
         instance = this;
     }
     private void OnEnable()
