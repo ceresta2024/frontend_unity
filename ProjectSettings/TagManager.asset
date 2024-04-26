@@ -8,6 +8,7 @@ TagManager:
   - TunnelEntrance
   - TunnelExit
   - Brick
+  - Pit
   layers:
   - Default
   - TransparentFX

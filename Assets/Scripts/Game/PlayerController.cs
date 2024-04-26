@@ -9,9 +9,12 @@ public class PlayerController : MonoBehaviour
     public int hitPoint = 100;
     public bool paused = false;
 
-	public float distance = 1f;
+    public float distance = 1f;
 
     private PolygonCollider2D tunnelExit;
+
+    private float timer = 0.0f;
+    private Vector2 oldVelocity;
 
     void Awake()
     {
@@ -22,20 +25,13 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (paused)
+        if (Application.platform == RuntimePlatform.Android)
         {
-            myRigidbody.velocity = Vector2.zero;
+            MoveWithGyroscope();
         }
-        else
+        else if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                MoveWithGyroscope();
-            }
-            else if (Application.platform == RuntimePlatform.WindowsEditor)
-            {
-                MoveWithKeyboard();
-            }
+            MoveWithKeyboard();
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -47,11 +43,19 @@ public class PlayerController : MonoBehaviour
                 ef.DoExplosion(pos);
             }
         }
-    }
-
-    public void OnMouseUpAsButton()
-    {
-        paused = !paused;
+        if (paused)
+        {
+            Debug.Log("Paused for " + timer);
+            myRigidbody.velocity = Vector2.zero;
+            timer += Time.deltaTime;
+            if (timer > 5)
+            {
+                timer = 0;
+                paused = false;
+                myRigidbody.velocity = oldVelocity;
+                Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
+            }
+        }
     }
 
     private void MoveWithKeyboard()
@@ -91,6 +95,28 @@ public class PlayerController : MonoBehaviour
             var polygon = tunnelExit.GetPath(exitIdx);
             var centerPos = GetCenter(polygon);
             transform.position = centerPos;
+        }
+        else if (collision.gameObject.CompareTag("Pit"))
+        {
+            Debug.Log("Player in pit");
+            oldVelocity = myRigidbody.velocity;
+            paused = true;
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Pit"))
+        {
+            speed = 0.1f;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Pit"))
+        {
+            speed = 1;
         }
     }
 
