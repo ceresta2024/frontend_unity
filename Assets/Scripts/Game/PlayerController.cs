@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     public Rigidbody2D myRigidbody;
     public float speed = 1;
+    public float speedInPit = 0.1f;
+    public float speedInThorn = 0.3f;
     public int hitPoint = 100;
     public bool paused = false;
 
@@ -98,9 +100,15 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Pit"))
         {
-            Debug.Log("Player in pit");
+            Debug.Log("Player entered in pit");
             oldVelocity = myRigidbody.velocity;
             paused = true;
+            hitPoint -= 5;
+        }
+        else if (collision.gameObject.CompareTag("Thorn"))
+        {
+            Debug.Log("Player entered in thorn");
+            hitPoint -= 3;
         }
     }
 
@@ -108,13 +116,17 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Pit"))
         {
-            speed = 0.1f;
+            speed = speedInPit;
+        }
+        else if (collision.gameObject.CompareTag("Thorn"))
+        {
+            speed = speedInThorn;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Pit"))
+        if (collision.gameObject.CompareTag("Pit") || collision.gameObject.CompareTag("Thorn"))
         {
             speed = 1;
         }

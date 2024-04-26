@@ -9,6 +9,7 @@ TagManager:
   - TunnelExit
   - Brick
   - Pit
+  - Thorn
   layers:
   - Default
   - TransparentFX
