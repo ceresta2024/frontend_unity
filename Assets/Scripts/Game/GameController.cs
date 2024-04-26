@@ -2,20 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Pun.UtilityScripts;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviourPunCallbacks
 {
+    public TMP_Text connectionStatusText;
+
+    private readonly string connectionStatusMessage = "Connection Status: ";
+
     // Start is called before the first frame update
     void Start()
     {
-        // string prefab = "Prefabs/Objects/" + substationData.objList[count];
+        CountdownTimer.SetStartTime();
+        Debug.Log(PhotonNetwork.CurrentRoom.Name);
+        var position = Vector2.zero;
+        var rotation = Quaternion.Euler(Vector2.zero);
+        PhotonNetwork.InstantiateRoomObject("Maps/" + PhotonNetwork.CurrentRoom.Name, position, rotation);
     }
 
     // Update is called once per frame
     void Update()
     {
+        connectionStatusText.text = connectionStatusMessage + PhotonNetwork.NetworkClientState;
+    }
 
+    public void OnBackButtonClicked()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene("MenuScene");
     }
 
     public override void OnEnable()
@@ -35,6 +55,9 @@ public class GameController : MonoBehaviourPunCallbacks
     private void StartGame()
     {
         Debug.Log("Start game");
+        var position = GameObject.Find("Start").transform.position;
+        var rotation = Quaternion.Euler(Vector2.zero);
+        PhotonNetwork.Instantiate("Player", position, rotation);
     }
 
     private void OnCountdownTimerIsExpired()

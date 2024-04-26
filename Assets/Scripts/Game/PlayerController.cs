@@ -9,9 +9,14 @@ public class PlayerController : MonoBehaviour
     public int hitPoint = 100;
     public bool paused = false;
 
+	public float distance = 1f;
+
+    private PolygonCollider2D tunnelExit;
+
     void Awake()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
     }
 
     // Update is called once per frame
@@ -30,6 +35,16 @@ public class PlayerController : MonoBehaviour
             else if (Application.platform == RuntimePlatform.WindowsEditor)
             {
                 MoveWithKeyboard();
+            }
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var distance = Vector2.Distance(transform.position, pos);
+            if (distance < this.distance)
+            {
+                ExplosionForce ef = GameObject.FindObjectOfType<ExplosionForce>();
+                ef.DoExplosion(pos);
             }
         }
     }
@@ -66,5 +81,46 @@ public class PlayerController : MonoBehaviour
         float yAcceleration = Input.acceleration.y;
         float d = Mathf.Sqrt(Mathf.Pow(xAcceleration, 2) + Mathf.Pow(yAcceleration, 2));
         myRigidbody.velocity = new Vector2(xAcceleration / d, yAcceleration / d) * speed;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("TunnelEntrance"))
+        {
+            var exitIdx = Random.Range(0, tunnelExit.pathCount);
+            var polygon = tunnelExit.GetPath(exitIdx);
+            var centerPos = GetCenter(polygon);
+            transform.position = centerPos;
+        }
+    }
+
+    private Vector2 GetCenter(Vector2[] vectors)
+    {
+        float xMax = float.MinValue;
+        float yMax = float.MinValue;
+        float xMin = float.MaxValue;
+        float yMin = float.MaxValue;
+        foreach (var vector in vectors)
+        {
+            if (xMax < vector.x)
+            {
+                xMax = vector.x;
+            }
+            if (yMax < vector.y)
+            {
+                yMax = vector.y;
+            }
+            if (xMin > vector.x)
+            {
+                xMin = vector.x;
+            }
+            if (yMin > vector.y)
+            {
+                yMin = vector.y;
+            }
+        }
+        var xCenter = (xMax + xMin) / 2;
+        var yCenter = (yMax + yMin) / 2;
+        return new Vector2(xCenter, yCenter);
     }
 }

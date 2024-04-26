@@ -336,7 +336,7 @@ public static class SpriteExploder
         //Create Game Object and set transform settings properly
         GameObject piece = new(source.name + " piece")
         {
-            tag = "Wall"
+            tag = source.tag
         };
         piece.transform.position = source.transform.position;
         piece.transform.rotation = source.transform.rotation;

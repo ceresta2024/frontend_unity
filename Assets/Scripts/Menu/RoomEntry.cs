@@ -26,7 +26,7 @@ public class RoomEntry : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         loadingSpinner.SetActive(false);
-        PhotonNetwork.LoadLevel("GameScene");
+        SceneManager.LoadScene("GameScene");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)

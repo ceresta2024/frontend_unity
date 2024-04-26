@@ -31,7 +31,7 @@ public class ExplosionForce : MonoBehaviour
 
         foreach (Collider2D coll in colliders)
         {
-            if (coll.CompareTag("Wall"))
+            if (coll.CompareTag("Brick"))
             {
                 coll.gameObject.SetActive(false);
             }

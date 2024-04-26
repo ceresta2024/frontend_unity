@@ -16,8 +16,6 @@ public class MenuController : MonoBehaviourPunCallbacks
     public GameObject lobbyPage;
     public GameObject startPage;
 
-    public Text connectionStatusText;
-
     private string playerName;
 
     // Start is called before the first frame update
@@ -26,12 +24,6 @@ public class MenuController : MonoBehaviourPunCallbacks
         goldText.text = PlayerPrefs.GetString("Gold");
         scoreText.text = PlayerPrefs.GetString("Score");
         playerName = PlayerPrefs.GetString("Username");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void OnPlayClicked()
@@ -44,14 +36,6 @@ public class MenuController : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         loadingSpinner.SetActive(false);
-        if (!PhotonNetwork.InLobby)
-        {
-            PhotonNetwork.JoinLobby();
-        }
-    }
-
-    public override void OnJoinedLobby()
-    {
         lobbyPage.SetActive(true);
         startPage.SetActive(false);
     }
