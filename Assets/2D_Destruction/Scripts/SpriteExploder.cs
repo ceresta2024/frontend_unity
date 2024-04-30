@@ -153,7 +153,7 @@ public static class SpriteExploder
         piece.transform.rotation = source.transform.rotation;
         piece.transform.localScale = source.transform.localScale;
 
-        //Create and Add Mesh Components
+        //Create and Add Mesh Componenats
         MeshFilter meshFilter = (MeshFilter)piece.AddComponent(typeof(MeshFilter));
         piece.AddComponent(typeof(MeshRenderer));
 

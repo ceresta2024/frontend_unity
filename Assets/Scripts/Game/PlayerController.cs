@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -18,10 +20,13 @@ public class PlayerController : MonoBehaviour
     private float timer = 0.0f;
     private Vector2 oldVelocity;
 
+    private GameController gameController;
+
     void Awake()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
+        gameController = GameObject.Find("GameController").GetComponent<GameController>();
     }
 
     // Update is called once per frame
@@ -109,6 +114,16 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Player entered in thorn");
             hitPoint -= 3;
+        }
+        else if (collision.gameObject.CompareTag("Goal"))
+        {
+            foreach (Player p in PhotonNetwork.PlayerList)
+            {
+
+            }
+            Debug.Log("you reached to the goal");
+            myRigidbody.velocity = Vector2.zero;
+            StartCoroutine(gameController.EndOfGame());
         }
     }
 

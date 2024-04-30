@@ -74,6 +74,17 @@ public class GameController : MonoBehaviourPunCallbacks
         player = PhotonNetwork.Instantiate("Player", position, rotation);
     }
 
+    public IEnumerator EndOfGame()
+    {
+        float timer = 5.0f;
+        while (timer > 0.0f)
+        {
+            yield return new WaitForEndOfFrame();
+            timer -= Time.deltaTime;
+        }
+        PhotonNetwork.LeaveRoom();
+    }
+
     private void OnCountdownTimerIsExpired()
     {
         StartGame();

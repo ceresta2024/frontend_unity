@@ -186,6 +186,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myRigidbody: {fileID: 9035324832336122563}
   speed: 1
+  speedInPit: 0.1
+  speedInThorn: 0.3
   hitPoint: 100
   paused: 0
   distance: 1
