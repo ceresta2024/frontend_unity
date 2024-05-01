@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class PlayerController : MonoBehaviour
 {
@@ -21,12 +22,14 @@ public class PlayerController : MonoBehaviour
     private Vector2 oldVelocity;
 
     private GameController gameController;
+    private VisualEffect vfxRenderer;
 
     void Awake()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
         gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        vfxRenderer = GameObject.FindWithTag("Weather").GetComponent<VisualEffect>();
     }
 
     // Update is called once per frame
@@ -63,6 +66,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
             }
         }
+        vfxRenderer.SetVector3("ColliderPos", transform.position);
     }
 
     private void MoveWithKeyboard()

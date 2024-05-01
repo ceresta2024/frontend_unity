@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviourPunCallbacks
 {
+    public Weather weather;
     public TMP_Text connectionStatusText;
 
     private readonly string connectionStatusMessage = "Connection Status: ";

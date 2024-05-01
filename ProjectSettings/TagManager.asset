@@ -12,6 +12,7 @@ TagManager:
   - Thorn
   - Bush
   - Goal
+  - Weather
   layers:
   - Default
   - TransparentFX
