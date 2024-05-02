@@ -5,16 +5,22 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using WebSocketSharp;
+using Facebook.Unity;
+using GooglePlayGames.BasicApi;
+using GooglePlayGames;
 
 public class LoginController : MonoBehaviour
 {
-    public TMP_InputField username;
+    public TMP_InputField email;
     public TMP_InputField password;
 
     public GameObject spinner;
 
     public GameObject notificationPanel;
     public TMP_Text notification;
+
+    private string Token;
+    private string Error;
 
     class LoginRequest
     {
@@ -34,6 +40,59 @@ public class LoginController : MonoBehaviour
         public string access_token;
     }
 
+    void Awake()
+    {
+        if (!FB.IsInitialized)
+        {
+            // Initialize the Facebook SDK
+            FB.Init(InitCallback, OnHideUnity);
+        }
+        else
+        {
+            // Already initialized, signal an app activation App Event
+            FB.ActivateApp();
+        }
+
+        var config = new PlayGamesClientConfiguration.Builder()
+        // Requests an ID token be generated.  
+        // This OAuth token can be used to
+        // identify the player to other services such as Firebase.
+        .RequestIdToken()
+        .Build();
+
+        PlayGamesPlatform.InitializeInstance(config);
+        PlayGamesPlatform.DebugLogEnabled = true;
+        PlayGamesPlatform.Activate();
+    }
+
+    void InitCallback()
+    {
+        if (FB.IsInitialized)
+        {
+            // Signal an app activation App Event
+            FB.ActivateApp();
+            // Continue with Facebook SDK
+        }
+        else
+        {
+            Debug.Log("Failed to Initialize the Facebook SDK");
+        }
+    }
+
+    void OnHideUnity(bool isGameShown)
+    {
+        if (!isGameShown)
+        {
+            // Pause the game - we will need to hide
+            Time.timeScale = 0;
+        }
+        else
+        {
+            // Resume the game - we're getting focus again
+            Time.timeScale = 1;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,17 +104,17 @@ public class LoginController : MonoBehaviour
         }
     }
 
-    public void LoginWithCredential()
+    public void OnLoginClicked()
     {
-        StartCoroutine(LoginWithCredential(username.text, password.text));
+        StartCoroutine(LoginWithCredential(email.text, password.text));
         spinner.SetActive(true);
     }
 
-    IEnumerator LoginWithCredential(string username, string password)
+    IEnumerator LoginWithCredential(string email, string password)
     {
         var body = new LoginRequest
         {
-            email = username,
+            email = email,
             password = password
         };
         var url = Config.baseUrl + "/user/login/";
@@ -108,6 +167,45 @@ public class LoginController : MonoBehaviour
             Debug.Log("Error: " + request.downloadHandler.text);
             PlayerPrefs.DeleteKey("AccessToken");
             spinner.SetActive(false);
+        }
+    }
+
+    public void OnFacebookButtonClicked()
+    {
+        // Define the permissions
+        var perms = new List<string>() { "public_profile", "email" };
+
+        FB.LogInWithReadPermissions(perms, result =>
+        {
+            if (FB.IsLoggedIn)
+            {
+                Token = AccessToken.CurrentAccessToken.TokenString;
+                Debug.Log($"Facebook Login token: {Token}");
+                // TODO: verify the access token in backend and login
+            }
+            else
+            {
+                Error = "User cancelled login";
+                Debug.Log("[Facebook Login] User cancelled login");
+            }
+        });
+    }
+
+    public void OnGoogleButtonClicked()
+    {
+        Social.localUser.Authenticate(OnGoogleLogin);
+    }
+
+    private void OnGoogleLogin(bool success)
+    {
+        if (success)
+        {
+            // Call Unity Authentication SDK to sign in or link with Google.
+            Debug.Log("Login with Google done. IdToken: " + ((PlayGamesLocalUser)Social.localUser).GetIdToken());
+        }
+        else
+        {
+            Debug.Log("Unsuccessful login");
         }
     }
 }

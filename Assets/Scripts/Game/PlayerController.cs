@@ -29,7 +29,8 @@ public class PlayerController : MonoBehaviour
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
         gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        vfxRenderer = GameObject.FindWithTag("Weather").GetComponent<VisualEffect>();
+        // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
+        // vfxRenderer.SetBool("IsCollideWithSphere", true);
     }
 
     // Update is called once per frame
