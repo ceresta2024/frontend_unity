@@ -492,7 +492,7 @@ public static class SpriteExploder
     /// <summary>
     /// calculates the UV coordinates for the given vertices based on the provided Sprite
     /// </summary>
-    /// <param name="vertices">vertices to generate the UV coordinates for</param>
+    /// <param name="vertices">vertices to generate the UV coordinates for</param>w
     /// <param name="sRend">Sprite Renderer of original object</param>
     /// <param name="sTransform">Transform of the original object</param>
     /// <returns>array of UV coordinates for the mesh</returns>

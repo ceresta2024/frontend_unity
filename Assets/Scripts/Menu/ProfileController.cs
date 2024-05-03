@@ -4,29 +4,32 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
-public class ProfileController : MonoBehaviour
+namespace Ceresta
 {
-    public GameObject loadingSpinner;
-
-    public void OnLogoutClicked()
+    public class ProfileController : MonoBehaviour
     {
-        StartCoroutine(Logout());
-        loadingSpinner.SetActive(true);
-    }
+        public GameObject loadingSpinner;
 
-    IEnumerator Logout()
-    {
-        var accessToken = PlayerPrefs.GetString("AccessToken");
-        var url = Config.baseUrl + "/user/logout";
-        var request = UnityWebRequest.Post(url, "", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        public void OnLogoutClicked()
         {
-            PlayerPrefs.DeleteKey("AccessToken");
-            SceneManager.LoadScene("AuthScene");
+            StartCoroutine(Logout());
+            loadingSpinner.SetActive(true);
+        }
+
+        IEnumerator Logout()
+        {
+            var accessToken = PlayerPrefs.GetString("AccessToken");
+            var url = Config.baseUrl + "/user/logout";
+            var request = UnityWebRequest.Post(url, "", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                PlayerPrefs.DeleteKey("AccessToken");
+                SceneManager.LoadScene("AuthScene");
+            }
         }
     }
 }
