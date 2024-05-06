@@ -22,7 +22,6 @@ namespace Ceresta
         public TMP_Text notification;
 
         private string Token;
-        private string Error;
 
         class LoginRequest
         {
@@ -133,6 +132,7 @@ namespace Ceresta
                 PlayerPrefs.SetString("Gold", res.gold.ToString());
                 PlayerPrefs.SetString("Username", res.name);
                 PlayerPrefs.SetString("Score", res.score.ToString());
+                PlayerPrefs.SetInt("JobId", res.job_id);
 
                 notification.text = "You have successfully logged in.";
                 notificationPanel.SetActive(true);
@@ -161,6 +161,7 @@ namespace Ceresta
                 PlayerPrefs.SetString("Gold", res.gold.ToString());
                 PlayerPrefs.SetString("Username", res.name);
                 PlayerPrefs.SetString("Score", res.score.ToString());
+                PlayerPrefs.SetInt("JobId", res.job_id);
 
                 SceneManager.LoadScene("MainUI");
             }
@@ -187,7 +188,6 @@ namespace Ceresta
                 }
                 else
                 {
-                    Error = "User cancelled login";
                     Debug.Log("[Facebook Login] User cancelled login");
                 }
             });
