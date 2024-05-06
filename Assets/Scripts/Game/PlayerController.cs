@@ -5,180 +5,184 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.VFX;
 
-public class PlayerController : MonoBehaviour
+namespace Ceresta
 {
-    public Rigidbody2D myRigidbody;
-    public float speed = 1;
-    public float speedInPit = 0.1f;
-    public float speedInThorn = 0.3f;
-    public int hitPoint = 100;
-    public bool paused = false;
-
-    public float distance = 1f;
-
-    private PolygonCollider2D tunnelExit;
-
-    private float timer = 0.0f;
-    private Vector2 oldVelocity;
-
-    private GameController gameController;
-    private VisualEffect vfxRenderer;
-
-    void Awake()
+    public class PlayerController : MonoBehaviour
     {
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
-        gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
-        // vfxRenderer.SetBool("IsCollideWithSphere", true);
-    }
+        public Rigidbody2D myRigidbody;
+        public float speed = 1;
+        public float speedInPit = 0.1f;
+        public float speedInThorn = 0.3f;
+        public int hitPoint = 100;
+        public bool paused = false;
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Application.platform == RuntimePlatform.Android)
+        public float distance = 1f;
+
+        private PolygonCollider2D tunnelExit;
+
+        private float timer = 0.0f;
+        private Vector2 oldVelocity;
+
+        private GameController gameController;
+        private VisualEffect vfxRenderer;
+
+        void Awake()
         {
-            MoveWithGyroscope();
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
+            gameController = GameObject.Find("GameController").GetComponent<GameController>();
+            // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
+            // vfxRenderer.SetBool("IsCollideWithSphere", true);
         }
-        else if (Application.platform == RuntimePlatform.WindowsEditor)
+
+        // Update is called once per frame
+        void Update()
         {
-            MoveWithKeyboard();
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var distance = Vector2.Distance(transform.position, pos);
-            if (distance < this.distance)
+            if (Application.platform == RuntimePlatform.Android)
             {
-                ExplosionForce ef = GameObject.FindObjectOfType<ExplosionForce>();
-                ef.DoExplosion(pos);
+                MoveWithGyroscope();
+            }
+            else if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                MoveWithKeyboard();
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                var distance = Vector2.Distance(transform.position, pos);
+                if (distance < this.distance)
+                {
+                    ExplosionForce ef = GameObject.FindObjectOfType<ExplosionForce>();
+                    ef.DoExplosion(pos);
+                }
+            }
+            if (paused)
+            {
+                Debug.Log("Paused for " + timer);
+                myRigidbody.velocity = Vector2.zero;
+                timer += Time.deltaTime;
+                if (timer > 5)
+                {
+                    timer = 0;
+                    paused = false;
+                    myRigidbody.velocity = oldVelocity;
+                    Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
+                }
+            }
+            vfxRenderer.SetVector3("ColliderPos", transform.position);
+        }
+
+        private void MoveWithKeyboard()
+        {
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                myRigidbody.velocity = Vector2.up * speed;
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                myRigidbody.velocity = Vector2.left * speed;
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                myRigidbody.velocity = Vector2.down * speed;
+            }
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                myRigidbody.velocity = Vector2.right * speed;
             }
         }
-        if (paused)
+
+        private void MoveWithGyroscope()
         {
-            Debug.Log("Paused for " + timer);
-            myRigidbody.velocity = Vector2.zero;
-            timer += Time.deltaTime;
-            if (timer > 5)
+            // Get the acceleration along the X-axis
+            float xAcceleration = Input.acceleration.x;
+            float yAcceleration = Input.acceleration.y;
+            float d = Mathf.Sqrt(Mathf.Pow(xAcceleration, 2) + Mathf.Pow(yAcceleration, 2));
+            myRigidbody.velocity = new Vector2(xAcceleration / d, yAcceleration / d) * speed;
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.gameObject.CompareTag("TunnelEntrance"))
             {
-                timer = 0;
-                paused = false;
-                myRigidbody.velocity = oldVelocity;
-                Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
+                var exitIdx = Random.Range(0, tunnelExit.pathCount);
+                var polygon = tunnelExit.GetPath(exitIdx);
+                var centerPos = GetCenter(polygon);
+                transform.position = centerPos;
+            }
+            else if (collision.gameObject.CompareTag("Pit"))
+            {
+                Debug.Log("Player entered in pit");
+                oldVelocity = myRigidbody.velocity;
+                paused = true;
+                hitPoint -= 5;
+            }
+            else if (collision.gameObject.CompareTag("Thorn"))
+            {
+                Debug.Log("Player entered in thorn");
+                hitPoint -= 3;
+            }
+            else if (collision.gameObject.CompareTag("Goal"))
+            {
+                foreach (Player p in PhotonNetwork.PlayerList)
+                {
+
+                }
+                Debug.Log("you reached to the goal");
+                myRigidbody.velocity = Vector2.zero;
+                StartCoroutine(gameController.EndOfGame());
             }
         }
-        vfxRenderer.SetVector3("ColliderPos", transform.position);
-    }
 
-    private void MoveWithKeyboard()
-    {
-        if (Input.GetKeyDown(KeyCode.W))
+        private void OnTriggerStay2D(Collider2D collision)
         {
-            myRigidbody.velocity = Vector2.up * speed;
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            myRigidbody.velocity = Vector2.left * speed;
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            myRigidbody.velocity = Vector2.down * speed;
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            myRigidbody.velocity = Vector2.right * speed;
-        }
-    }
-
-    private void MoveWithGyroscope()
-    {
-        // Get the acceleration along the X-axis
-        float xAcceleration = Input.acceleration.x;
-        float yAcceleration = Input.acceleration.y;
-        float d = Mathf.Sqrt(Mathf.Pow(xAcceleration, 2) + Mathf.Pow(yAcceleration, 2));
-        myRigidbody.velocity = new Vector2(xAcceleration / d, yAcceleration / d) * speed;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("TunnelEntrance"))
-        {
-            var exitIdx = Random.Range(0, tunnelExit.pathCount);
-            var polygon = tunnelExit.GetPath(exitIdx);
-            var centerPos = GetCenter(polygon);
-            transform.position = centerPos;
-        }
-        else if (collision.gameObject.CompareTag("Pit"))
-        {
-            Debug.Log("Player entered in pit");
-            oldVelocity = myRigidbody.velocity;
-            paused = true;
-            hitPoint -= 5;
-        }
-        else if (collision.gameObject.CompareTag("Thorn"))
-        {
-            Debug.Log("Player entered in thorn");
-            hitPoint -= 3;
-        }
-        else if (collision.gameObject.CompareTag("Goal"))
-        {
-            foreach (Player p in PhotonNetwork.PlayerList)
+            if (collision.gameObject.CompareTag("Pit"))
             {
-
+                speed = speedInPit;
             }
-            Debug.Log("you reached to the goal");
-            myRigidbody.velocity = Vector2.zero;
-            StartCoroutine(gameController.EndOfGame());
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Pit"))
-        {
-            speed = speedInPit;
-        }
-        else if (collision.gameObject.CompareTag("Thorn"))
-        {
-            speed = speedInThorn;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Pit") || collision.gameObject.CompareTag("Thorn"))
-        {
-            speed = 1;
-        }
-    }
-
-    private Vector2 GetCenter(Vector2[] vectors)
-    {
-        float xMax = float.MinValue;
-        float yMax = float.MinValue;
-        float xMin = float.MaxValue;
-        float yMin = float.MaxValue;
-        foreach (var vector in vectors)
-        {
-            if (xMax < vector.x)
+            else if (collision.gameObject.CompareTag("Thorn"))
             {
-                xMax = vector.x;
-            }
-            if (yMax < vector.y)
-            {
-                yMax = vector.y;
-            }
-            if (xMin > vector.x)
-            {
-                xMin = vector.x;
-            }
-            if (yMin > vector.y)
-            {
-                yMin = vector.y;
+                speed = speedInThorn;
             }
         }
-        var xCenter = (xMax + xMin) / 2;
-        var yCenter = (yMax + yMin) / 2;
-        return new Vector2(xCenter, yCenter);
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            if (collision.gameObject.CompareTag("Pit") || collision.gameObject.CompareTag("Thorn"))
+            {
+                speed = 1;
+            }
+        }
+
+        private Vector2 GetCenter(Vector2[] vectors)
+        {
+            float xMax = float.MinValue;
+            float yMax = float.MinValue;
+            float xMin = float.MaxValue;
+            float yMin = float.MaxValue;
+            foreach (var vector in vectors)
+            {
+                if (xMax < vector.x)
+                {
+                    xMax = vector.x;
+                }
+                if (yMax < vector.y)
+                {
+                    yMax = vector.y;
+                }
+                if (xMin > vector.x)
+                {
+                    xMin = vector.x;
+                }
+                if (yMin > vector.y)
+                {
+                    yMin = vector.y;
+                }
+            }
+            var xCenter = (xMax + xMin) / 2;
+            var yCenter = (yMax + yMin) / 2;
+            return new Vector2(xCenter, yCenter);
+        }
     }
+
 }

@@ -39,7 +39,7 @@ namespace Ceresta
             if (request.result == UnityWebRequest.Result.Success)
             {
                 PlayerPrefs.DeleteKey("AccessToken");
-                SceneManager.LoadScene("AuthScene");
+                SceneManager.LoadScene("AuthUI");
             }
         }
     }
