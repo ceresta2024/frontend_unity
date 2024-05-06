@@ -31,6 +31,7 @@ namespace Ceresta
         public TMP_Text goldText;
         public Transform shopContent;
         public Transform inventoryContent;
+        public GameObject shopModal;
 
         void Start()
         {
@@ -69,6 +70,8 @@ namespace Ceresta
                     item.quantity.text = itemData.quantity.ToString();
                     var sp = Resources.Load<Sprite>($"Items/{itemData.item_id}");
                     item.image.sprite = sp;
+                    item.SetItemId(itemData.item_id);
+                    item.SetShopModal(shopModal);
                 }
             }
             else
