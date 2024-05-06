@@ -14,10 +14,12 @@ namespace Ceresta
         public Image image;
         private int itemId;
         private GameObject shopModal;
+        private bool owned = false;
 
         public void OnClicked()
         {
             var modalController = shopModal.GetComponent<ShopModalController>();
+            modalController.SetOwned(owned);
             modalController.Show(itemId);
         }
 
@@ -29,6 +31,11 @@ namespace Ceresta
         public void SetShopModal(GameObject shopModal)
         {
             this.shopModal = shopModal;
+        }
+
+        public void SetOwned(bool owned)
+        {
+            this.owned = owned;
         }
     }
 }
