@@ -24,10 +24,7 @@ public class MenuController : MonoBehaviourPunCallbacks
         goldText.text = PlayerPrefs.GetString("Gold");
         scoreText.text = PlayerPrefs.GetString("Score");
         playerName = PlayerPrefs.GetString("Username");
-    }
 
-    public void OnPlayClicked()
-    {
         loadingSpinner.SetActive(true);
         PhotonNetwork.LocalPlayer.NickName = playerName;
         PhotonNetwork.ConnectUsingSettings();
@@ -36,6 +33,15 @@ public class MenuController : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         loadingSpinner.SetActive(false);
+    }
+
+    public void OnPlayClicked()
+    {
+        PhotonNetwork.JoinLobby();
+    }
+
+    public override void OnJoinedLobby()
+    {
         lobbyPage.SetActive(true);
         startPage.SetActive(false);
     }
