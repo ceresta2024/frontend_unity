@@ -37,7 +37,7 @@ namespace Ceresta
         {
             StartCoroutine(GetShopItems());
             StartCoroutine(GetInventoryItems());
-            goldText.text = PlayerPrefs.GetString("Gold");
+            goldText.text = PlayerPrefs.GetInt("Gold").ToString();
         }
 
         public void OnKeywordSubmit(string keyword)

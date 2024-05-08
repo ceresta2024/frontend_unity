@@ -2415,7 +2415,7 @@ GameObject:
   - component: {fileID: 274157886}
   - component: {fileID: 274157885}
   m_Layer: 5
-  m_Name: score
+  m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2694,8 +2694,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1568783224}
-        m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
+      - m_Target: {fileID: 1651838218}
+        m_TargetAssemblyTypeName: Ceresta.MainController, Assembly-CSharp
         m_MethodName: OnPlayClicked
         m_Mode: 1
         m_Arguments:
@@ -6477,7 +6477,6 @@ GameObject:
   - component: {fileID: 621656700}
   - component: {fileID: 621656699}
   - component: {fileID: 621656698}
-  - component: {fileID: 621656701}
   m_Layer: 5
   m_Name: RoomPage
   m_TagString: Untagged
@@ -6570,20 +6569,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621656695}
   m_CullTransparentMesh: 1
---- !u!114 &621656701
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621656695}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64293969034261548bf5edbf375cc1d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roomPage: {fileID: 621656695}
-  lobbyPage: {fileID: 1866457356}
 --- !u!1 &657629642
 GameObject:
   m_ObjectHideFlags: 0
@@ -6880,7 +6865,7 @@ GameObject:
   - component: {fileID: 688441540}
   - component: {fileID: 688441539}
   m_Layer: 5
-  m_Name: Score
+  m_Name: ScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7628,7 +7613,6 @@ GameObject:
   - component: {fileID: 706894883}
   - component: {fileID: 706894882}
   - component: {fileID: 706894881}
-  - component: {fileID: 706894884}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -7693,19 +7677,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &706894884
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 706894880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
 --- !u!1 &715662640
 GameObject:
   m_ObjectHideFlags: 0
@@ -10602,7 +10573,7 @@ GameObject:
   - component: {fileID: 1033873532}
   - component: {fileID: 1033873531}
   m_Layer: 5
-  m_Name: HomeButton
+  m_Name: BackToLobby
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10671,9 +10642,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 621656701}
-        m_TargetAssemblyTypeName: RoomController, Assembly-CSharp
-        m_MethodName: OnBackClicked
+      - m_Target: {fileID: 1651838218}
+        m_TargetAssemblyTypeName: Ceresta.MainController, Assembly-CSharp
+        m_MethodName: OnBackToLobbyClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15120,9 +15091,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1866457358}
-        m_TargetAssemblyTypeName: LobbyController, Assembly-CSharp
-        m_MethodName: OnBackClicked
+      - m_Target: {fileID: 1651838218}
+        m_TargetAssemblyTypeName: Ceresta.MainController, Assembly-CSharp
+        m_MethodName: OnBackToHomeClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -16135,7 +16106,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1568783223}
-  - component: {fileID: 1568783224}
   - component: {fileID: 1568783226}
   - component: {fileID: 1568783225}
   m_Layer: 5
@@ -16167,23 +16137,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1568783224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1568783222}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 604cfb5bd73ef9948a4e34e76cc31f69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  goldText: {fileID: 2023996742}
-  scoreText: {fileID: 274157885}
-  loadingSpinner: {fileID: 1271830609}
-  lobbyPage: {fileID: 1866457356}
-  startPage: {fileID: 1568783222}
 --- !u!114 &1568783225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16838,6 +16791,7 @@ GameObject:
   - component: {fileID: 1651838216}
   - component: {fileID: 1651838215}
   - component: {fileID: 1651838214}
+  - component: {fileID: 1651838218}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -16939,6 +16893,26 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1651838218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651838213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a418a50853201a948854d4697a9676df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPage: {fileID: 1568783222}
+  lobbyPage: {fileID: 1866457356}
+  roomPage: {fileID: 621656695}
+  loadingSpinner: {fileID: 1271830609}
+  goldText: {fileID: 2023996742}
+  scoreText: {fileID: 274157885}
+  roomListContent: {fileID: 706894880}
+  playerListContent: {fileID: 1391878664}
 --- !u!1 &1653976233
 GameObject:
   m_ObjectHideFlags: 0
@@ -18643,7 +18617,6 @@ GameObject:
   - component: {fileID: 1866457360}
   - component: {fileID: 1866457359}
   - component: {fileID: 1866457361}
-  - component: {fileID: 1866457358}
   m_Layer: 5
   m_Name: LobbyPage
   m_TagString: Untagged
@@ -18672,23 +18645,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1866457358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1866457356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fed8935876bf28847a536d11457fdf1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lobbyPage: {fileID: 1866457356}
-  startPage: {fileID: 1568783222}
-  roomList: {fileID: 706894880}
-  roomPage: {fileID: 621656695}
-  loadingSpinner: {fileID: 1271830609}
 --- !u!114 &1866457359
 MonoBehaviour:
   m_ObjectHideFlags: 0

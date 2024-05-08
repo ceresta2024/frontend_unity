@@ -124,7 +124,7 @@ namespace Ceresta
             }
             else if (collision.gameObject.CompareTag("Goal"))
             {
-                foreach (Player p in PhotonNetwork.PlayerList)
+                foreach (var p in PhotonNetwork.PlayerList)
                 {
 
                 }

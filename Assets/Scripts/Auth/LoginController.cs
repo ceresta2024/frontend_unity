@@ -129,9 +129,9 @@ namespace Ceresta
                 var res = JsonUtility.FromJson<LoginResponse>(responseText);
 
                 PlayerPrefs.SetString("AccessToken", res.access_token);
-                PlayerPrefs.SetString("Gold", res.gold.ToString());
+                PlayerPrefs.SetInt("Gold", res.gold);
                 PlayerPrefs.SetString("Username", res.name);
-                PlayerPrefs.SetString("Score", res.score.ToString());
+                PlayerPrefs.SetInt("Score", res.score);
                 PlayerPrefs.SetInt("JobId", res.job_id);
 
                 notification.text = "You have successfully logged in.";
@@ -158,9 +158,9 @@ namespace Ceresta
                 var responseText = request.downloadHandler.text;
                 var res = JsonUtility.FromJson<LoginResponse>(responseText);
 
-                PlayerPrefs.SetString("Gold", res.gold.ToString());
+                PlayerPrefs.SetInt("Gold", res.gold);
                 PlayerPrefs.SetString("Username", res.name);
-                PlayerPrefs.SetString("Score", res.score.ToString());
+                PlayerPrefs.SetInt("Score", res.score);
                 PlayerPrefs.SetInt("JobId", res.job_id);
 
                 SceneManager.LoadScene("MainUI");

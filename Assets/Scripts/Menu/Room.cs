@@ -15,7 +15,6 @@ namespace Ceresta
         public int mapId;
         public int maxPlayers = 20;
         public TMP_Text infoText;
-        public GameObject roomPage;
         public GameObject loadingSpinner;
 
         public void OnClicked()
@@ -27,17 +26,6 @@ namespace Ceresta
                 PublishUserId = true,
             };
             PhotonNetwork.JoinOrCreateRoom(roomId, roomOptions, TypedLobby.Default);
-        }
-
-        public override void OnJoinedRoom()
-        {
-            loadingSpinner.SetActive(false);
-            roomPage.SetActive(true);
-        }
-
-        public override void OnJoinRoomFailed(short returnCode, string message)
-        {
-            Debug.Log("Failed to join room: " + message);
         }
     }
 }

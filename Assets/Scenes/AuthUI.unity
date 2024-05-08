@@ -217,6 +217,7 @@ GameObject:
   - component: {fileID: 43752960}
   - component: {fileID: 43752959}
   - component: {fileID: 43752961}
+  - component: {fileID: 43752962}
   m_Layer: 5
   m_Name: Email
   m_TagString: Untagged
@@ -381,6 +382,20 @@ MonoBehaviour:
   m_isRichTextEditingAllowed: 0
   m_LineLimit: 0
   m_InputValidator: {fileID: 0}
+--- !u!114 &43752962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43752956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 20, y: 0, z: 20, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &89672551
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,6 +832,7 @@ GameObject:
   - component: {fileID: 256741151}
   - component: {fileID: 256741150}
   - component: {fileID: 256741149}
+  - component: {fileID: 256741152}
   m_Layer: 5
   m_Name: Password
   m_TagString: Untagged
@@ -981,6 +997,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 256741147}
   m_CullTransparentMesh: 1
+--- !u!114 &256741152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 256741147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 20, y: 0, z: 20, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &277642957
 GameObject:
   m_ObjectHideFlags: 0
@@ -2274,6 +2304,7 @@ GameObject:
   - component: {fileID: 763370009}
   - component: {fileID: 763370008}
   - component: {fileID: 763370007}
+  - component: {fileID: 763370010}
   m_Layer: 5
   m_Name: Password
   m_TagString: Untagged
@@ -2438,6 +2469,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 763370005}
   m_CullTransparentMesh: 1
+--- !u!114 &763370010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 763370005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 20, y: 0, z: 20, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &828720823
 GameObject:
   m_ObjectHideFlags: 0
@@ -3474,6 +3519,7 @@ GameObject:
   - component: {fileID: 1157885560}
   - component: {fileID: 1157885559}
   - component: {fileID: 1157885558}
+  - component: {fileID: 1157885561}
   m_Layer: 5
   m_Name: Email
   m_TagString: Untagged
@@ -3638,6 +3684,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157885556}
   m_CullTransparentMesh: 1
+--- !u!114 &1157885561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157885556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 20, y: 0, z: 20, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &1219585183
 GameObject:
   m_ObjectHideFlags: 0
@@ -4083,7 +4143,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 2
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
@@ -4758,6 +4818,7 @@ GameObject:
   - component: {fileID: 1572968186}
   - component: {fileID: 1572968185}
   - component: {fileID: 1572968184}
+  - component: {fileID: 1572968187}
   m_Layer: 5
   m_Name: Username
   m_TagString: Untagged
@@ -4922,6 +4983,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572968182}
   m_CullTransparentMesh: 1
+--- !u!114 &1572968187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572968182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 20, y: 0, z: 20, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &1604209975
 GameObject:
   m_ObjectHideFlags: 0

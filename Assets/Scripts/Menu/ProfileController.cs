@@ -18,7 +18,7 @@ namespace Ceresta
         void Awake()
         {
             username.text = PlayerPrefs.GetString("Username");
-            gold.text = PlayerPrefs.GetString("Gold");
+            gold.text = PlayerPrefs.GetInt("Gold").ToString();
         }
 
         public void OnLogoutClicked()
