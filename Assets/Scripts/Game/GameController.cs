@@ -24,11 +24,15 @@ namespace Ceresta
         // Start is called before the first frame update
         void Start()
         {
-            CountdownTimer.SetStartTime();
             Debug.Log(PhotonNetwork.CurrentRoom.Name);
             var position = Vector2.zero;
             var rotation = Quaternion.Euler(Vector2.zero);
-            PhotonNetwork.InstantiateRoomObject("Maps/" + PhotonNetwork.CurrentRoom.Name, position, rotation);
+            object mapIdFromProp;
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out mapIdFromProp))
+            {
+                var mapId = (int)mapIdFromProp;
+                PhotonNetwork.InstantiateRoomObject($"Maps/{mapId}", position, rotation);
+            }
             mainCamera = Camera.main;
         }
 
@@ -55,20 +59,6 @@ namespace Ceresta
             SceneManager.LoadScene("MainUI");
         }
 
-        public override void OnEnable()
-        {
-            base.OnEnable();
-
-            CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
-        }
-
-        public override void OnDisable()
-        {
-            base.OnDisable();
-
-            CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
-        }
-
         private void StartGame()
         {
             Debug.Log("Start game");
@@ -86,11 +76,6 @@ namespace Ceresta
                 timer -= Time.deltaTime;
             }
             PhotonNetwork.LeaveRoom();
-        }
-
-        private void OnCountdownTimerIsExpired()
-        {
-            StartGame();
         }
     }
 }

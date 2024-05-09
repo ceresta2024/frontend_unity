@@ -36,7 +36,7 @@ namespace Ceresta
             public string email;
             public int gold;
             public int score;
-            public int job_id;
+            public string job;
             public int status;
             public string access_token;
         }
@@ -132,7 +132,7 @@ namespace Ceresta
                 PlayerPrefs.SetInt("Gold", res.gold);
                 PlayerPrefs.SetString("Username", res.name);
                 PlayerPrefs.SetInt("Score", res.score);
-                PlayerPrefs.SetInt("JobId", res.job_id);
+                PlayerPrefs.SetString("Job", res.job);
 
                 notification.text = "You have successfully logged in.";
                 notificationPanel.SetActive(true);
@@ -161,7 +161,7 @@ namespace Ceresta
                 PlayerPrefs.SetInt("Gold", res.gold);
                 PlayerPrefs.SetString("Username", res.name);
                 PlayerPrefs.SetInt("Score", res.score);
-                PlayerPrefs.SetInt("JobId", res.job_id);
+                PlayerPrefs.SetString("Job", res.job);
 
                 SceneManager.LoadScene("MainUI");
             }

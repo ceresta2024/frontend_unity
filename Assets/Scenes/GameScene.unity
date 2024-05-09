@@ -1140,7 +1140,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1822113597}
   - component: {fileID: 1822113596}
-  - component: {fileID: 1822113598}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -1177,20 +1176,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1822113598
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1822113595}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffc398cf76e6d458caf303b5fceea504, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Countdown: 5
-  Text: {fileID: 50081899}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

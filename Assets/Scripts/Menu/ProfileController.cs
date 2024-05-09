@@ -9,7 +9,6 @@ namespace Ceresta
 {
     public class ProfileController : MonoBehaviour
     {
-        public GameObject loadingSpinner;
         public TMP_Text username;
         public TMP_Text gold;
         public TMP_Text jobText;
@@ -19,28 +18,13 @@ namespace Ceresta
         {
             username.text = PlayerPrefs.GetString("Username");
             gold.text = PlayerPrefs.GetInt("Gold").ToString();
+            jobText.text = PlayerPrefs.GetString("Job");
         }
 
         public void OnLogoutClicked()
         {
-            StartCoroutine(Logout());
-            loadingSpinner.SetActive(true);
-        }
-
-        private IEnumerator Logout()
-        {
-            var accessToken = PlayerPrefs.GetString("AccessToken");
-            var url = Config.baseUrl + "/user/logout";
-            var request = UnityWebRequest.Post(url, "", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                PlayerPrefs.DeleteKey("AccessToken");
-                SceneManager.LoadScene("AuthUI");
-            }
+            PlayerPrefs.DeleteKey("AccessToken");
+            SceneManager.LoadScene("AuthUI");
         }
     }
 }

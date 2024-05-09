@@ -92,7 +92,7 @@ namespace Ceresta
                 var res = JsonUtility.FromJson<JobListResponse>(responseText);
 
                 jobListContent.transform.DetachChildren();
-                var jobId = PlayerPrefs.GetInt("JobId");
+                var jobName = PlayerPrefs.GetString("Job");
                 foreach (var jobData in res.data)
                 {
                     var prefab = Resources.Load<GameObject>("Job");
@@ -112,7 +112,7 @@ namespace Ceresta
                     job.items = jobData.items;
                     job.controller = this;
 
-                    if (jobData.id == jobId)
+                    if (jobData.name == jobName)
                     {
                         toggle.isOn = true;
                         profileController.jobText.text = jobData.name;
@@ -152,7 +152,7 @@ namespace Ceresta
 
                 profileController.jobText.text = selectedName.text;
                 profileController.avatar.sprite = Resources.Load<Sprite>($"Jobs/{selectedName.text}");
-                PlayerPrefs.SetInt("JobId", selectedId);
+                PlayerPrefs.SetString("Job", selectedName.text);
             }
             else
             {
