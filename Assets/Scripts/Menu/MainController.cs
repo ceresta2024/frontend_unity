@@ -49,10 +49,6 @@ namespace Ceresta
         public GameObject roomListContent;
         private Dictionary<string, Room> rooms;
 
-        [Header("Player List")]
-        public GameObject playerListContent;
-        public Dictionary<string, Player> players;
-
         void Start()
         {
             PhotonNetwork.AutomaticallySyncScene = true;
@@ -89,10 +85,21 @@ namespace Ceresta
             if (!PhotonNetwork.InLobby)
             {
                 PhotonNetwork.JoinLobby();
+                SetLoading(true);
             }
 
             SetActivePage("LobbyPage");
             StartCoroutine(GetRoomList());
+        }
+
+        public override void OnJoinedLobby()
+        {
+            SetLoading(false);
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            SetActivePage("StartPage");
         }
 
         public void OnBackToHomeClicked()
@@ -119,6 +126,10 @@ namespace Ceresta
                     var roomObject = GameObject.Instantiate(prefab, roomListContent.transform);
                     var room = roomObject.GetComponent<Room>();
                     room.Initialize(roomData.room_id, roomData.map_id, startTime);
+                    room.button.onClick.AddListener(() => {
+                        SetActivePage("RoomPage");
+                        SetLoading(true);
+                    });
 
                     if (!rooms.ContainsKey(roomData.room_id)) rooms.Add(roomData.room_id, room);
                 }
@@ -129,58 +140,6 @@ namespace Ceresta
                 Debug.Log("Error: " + request.downloadHandler.text);
                 SetLoading(false);
             }
-        }
-
-        public override void OnJoinedRoom()
-        {
-            SetLoading(false);
-            SetActivePage("RoomPage");
-            CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
-
-            playerListContent.transform.DetachChildren();
-            players = new Dictionary<string, Player>();
-            foreach (var p in PhotonNetwork.PlayerList)
-            {
-                var prefab = Resources.Load<GameObject>("Player");
-                var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
-                var player = playerObject.GetComponent<Player>();
-                player.userId.text = p.NickName;
-
-                players.Add(p.NickName, player);
-            }
-        }
-
-        public override void OnJoinRoomFailed(short returnCode, string message)
-        {
-            Debug.Log("Failed to join room: " + message);
-        }
-
-        public void OnBackToLobbyClicked()
-        {
-            SetLoading(true);
-            PhotonNetwork.LeaveRoom();
-        }
-
-        public override void OnLeftRoom()
-        {
-            CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
-            SetActivePage("LobbyPage");
-        }
-
-        public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
-        {
-            var prefab = Resources.Load<GameObject>("Player");
-            var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
-            var player = playerObject.GetComponent<Player>();
-            player.userId.text = newPlayer.NickName;
-
-            players.Add(newPlayer.NickName, player);
-        }
-
-        public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
-        {
-            Destroy(players[otherPlayer.NickName].gameObject);
-            players.Remove(otherPlayer.NickName);
         }
 
         private void SetActivePage(string activePage)
@@ -207,7 +166,7 @@ namespace Ceresta
         {
             var url = Config.baseUrl + "/game/get_starttime/";
             var request = UnityWebRequest.Get(url);
-            
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
@@ -222,15 +181,6 @@ namespace Ceresta
             {
                 Debug.Log("Error: " + request.downloadHandler.text);
             }
-        }
-
-        private void OnCountdownTimerIsExpired()
-        {
-            Debug.Log("Start Game");
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.IsVisible = false;
-
-            PhotonNetwork.LoadLevel("GameScene");
         }
     }
 }

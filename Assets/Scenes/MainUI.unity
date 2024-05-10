@@ -753,7 +753,7 @@ GameObject:
   - component: {fileID: 91887968}
   - component: {fileID: 91887967}
   m_Layer: 5
-  m_Name: Score
+  m_Name: TotalPlayers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2957,7 +2957,7 @@ GameObject:
   - component: {fileID: 306377213}
   - component: {fileID: 306377212}
   m_Layer: 5
-  m_Name: score
+  m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3002,7 +3002,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 99
+  m_text: 0 / 20
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6555,6 +6555,7 @@ GameObject:
   - component: {fileID: 621656699}
   - component: {fileID: 621656698}
   - component: {fileID: 621656701}
+  - component: {fileID: 621656702}
   m_Layer: 5
   m_Name: RoomPage
   m_TagString: Untagged
@@ -6654,12 +6655,30 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621656695}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a2e89e52555b2c4fb7b266e387ea8ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Text: {fileID: 1653976237}
+--- !u!114 &621656702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621656695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af0c62e5510fde34480c22c8b4eaf459, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: {fileID: 621656701}
+  lobbyPage: {fileID: 1866457356}
+  roomPage: {fileID: 621656695}
+  playerListContent: {fileID: 1391878664}
+  totalPlayers: {fileID: 306377212}
+  loadingSpinner: {fileID: 1271830609}
 --- !u!1 &657629642
 GameObject:
   m_ObjectHideFlags: 0
@@ -10733,8 +10752,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1651838218}
-        m_TargetAssemblyTypeName: Ceresta.MainController, Assembly-CSharp
+      - m_Target: {fileID: 621656702}
+        m_TargetAssemblyTypeName: Ceresta.RoomController, Assembly-CSharp
         m_MethodName: OnBackToLobbyClicked
         m_Mode: 1
         m_Arguments:
@@ -14347,8 +14366,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1391878665}
   - component: {fileID: 1391878668}
-  - component: {fileID: 1391878667}
-  - component: {fileID: 1391878666}
+  - component: {fileID: 1391878669}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -14375,7 +14393,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1391878666
+--- !u!114 &1391878668
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -14384,11 +14402,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1391878664}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
---- !u!114 &1391878667
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 30
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &1391878669
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -14402,30 +14433,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
---- !u!114 &1391878668
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1391878664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 0
-  m_StartCorner: 0
-  m_StartAxis: 0
-  m_CellSize: {x: 400, y: 495}
-  m_Spacing: {x: 30, y: 60}
-  m_Constraint: 1
-  m_ConstraintCount: 2
 --- !u!1 &1397583651
 GameObject:
   m_ObjectHideFlags: 0
@@ -17139,7 +17146,6 @@ MonoBehaviour:
   timerInLobby: {fileID: 1369365709}
   playButton: {fileID: 277656083}
   roomListContent: {fileID: 706894880}
-  playerListContent: {fileID: 1391878664}
 --- !u!1 &1653976233
 GameObject:
   m_ObjectHideFlags: 0

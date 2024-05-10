@@ -4,6 +4,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Ceresta
 {
@@ -13,11 +14,20 @@ namespace Ceresta
         private int mapId;
         private DateTime startTime;
         private int maxPlayers = 20;
+
         public TMP_Text infoText;
+        public Button button;
 
         public void OnClicked()
         {
             var timestamp = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
+            var playerProps = new Hashtable
+            {
+                {"Job", PlayerPrefs.GetString("Job")},
+                {"Score", PlayerPrefs.GetInt("Score")}
+            };
+            PhotonNetwork.LocalPlayer.SetCustomProperties(playerProps);
+            
             var props = new Hashtable
             {
                 {CountdownTimer.CountdownStartTime, timestamp},

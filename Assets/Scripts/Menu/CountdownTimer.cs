@@ -143,8 +143,7 @@ namespace Ceresta
         {
             startTimestamp = PhotonNetwork.ServerTimestamp;
 
-            object startTimeFromProps;
-            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(CountdownStartTime, out startTimeFromProps))
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(CountdownStartTime, out object startTimeFromProps))
             {
                 startTimestamp = (long)startTimeFromProps;
                 return true;
