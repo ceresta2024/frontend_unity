@@ -1,19 +1,36 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
+using ExitGames.Client.Photon;
 using Photon.Pun;
-using Photon.Pun.UtilityScripts;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 namespace Ceresta
 {
     public class GameController : MonoBehaviourPunCallbacks
     {
-        public Weather weather;
-        public TMP_Text connectionStatusText;
+        [Serializable]
+        class ItemData
+        {
+            public int id;
+            public string name;
+            public int item_id;
+            public int price;
+            public int quantity;
+        }
 
-        private readonly string connectionStatusMessage = "Connection Status: ";
+        [Serializable]
+        class ItemsResponse
+        {
+            [SerializeField]
+            public ItemData[] data;
+        }
+        
+        public Weather weather;
+        public GameObject itemsListContent;
 
         private GameObject player;
         private Camera mainCamera;
@@ -25,14 +42,12 @@ namespace Ceresta
         void Start()
         {
             mainCamera = Camera.main;
-            InitMap();
-            SpawnPlayer();
+            Initialize();
         }
 
         // Update is called once per frame
         void Update()
         {
-            connectionStatusText.text = connectionStatusMessage + PhotonNetwork.NetworkClientState;
             if (player)
             {
                 Vector3 targetPosition = player.transform.position + offset;
@@ -52,24 +67,19 @@ namespace Ceresta
             SceneManager.LoadScene("MainUI");
         }
 
-        private void InitMap()
+        private void Initialize()
         {
             var position = Vector2.zero;
             var rotation = Quaternion.Euler(Vector2.zero);
-            if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out object mapId))
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out object mapId))
             {
-                PhotonNetwork.InstantiateRoomObject($"Maps/{(int)mapId}", position, rotation);
+                var mapPrefab = Resources.Load<GameObject>($"Maps/{(int)mapId}");
+                var mapObject = GameObject.Instantiate(mapPrefab, position, rotation);
+                var startTransform = mapObject.transform.Find("Start");
+                player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
             }
-        }
 
-        // public override void
-
-        private void SpawnPlayer()
-        {
-            var startObject = GameObject.Find("Start");
-            Debug.Log(startObject);
-            // var rotation = Quaternion.Euler(Vector2.zero);
-            // player = PhotonNetwork.Instantiate("Player", startObject.transform.position, rotation);
+            StartCoroutine(GetInventoryItems());
         }
 
         public IEnumerator EndOfGame()
@@ -81,6 +91,36 @@ namespace Ceresta
                 timer -= Time.deltaTime;
             }
             PhotonNetwork.LeaveRoom();
+        }
+
+        private IEnumerator GetInventoryItems()
+        {
+            var accessToken = PlayerPrefs.GetString("AccessToken");
+            var url = $"{Config.baseUrl}/shop/get_inventory_list/";
+            var request = UnityWebRequest.Get(url);
+            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                itemsListContent.transform.DetachChildren();
+                var responseText = request.downloadHandler.text;
+                var res = JsonUtility.FromJson<ItemsResponse>(responseText);
+                foreach (var itemData in res.data)
+                {
+                    var prefab = Resources.Load<GameObject>("Item");
+                    var itemObject = GameObject.Instantiate(prefab, itemsListContent.transform);
+                    itemObject.SetActive(true);
+                    var item = itemObject.GetComponent<ItemInGame>();
+                    var sp = Resources.Load<Sprite>($"Items/{itemData.item_id}");
+                    item.image.sprite = sp;
+                }
+            }
+            else
+            {
+                Debug.Log("Error: " + request.downloadHandler.text);
+            }
         }
     }
 }

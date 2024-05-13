@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 3056202197722215300}
   - component: {fileID: 2668911300058775176}
   - component: {fileID: 3354360375610289229}
-  - component: {fileID: 6165298225741177590}
   - component: {fileID: 2134996662076923227}
+  - component: {fileID: 4906932910911892298}
+  - component: {fileID: 6165298225741177590}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -111,26 +112,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &6165298225741177590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1900713472245016983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d65d8dfd9295b044ea5b6179825a7c66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myRigidbody: {fileID: 3354360375610289229}
-  speed: 1
-  speedInPit: 0.1
-  speedInThorn: 0.3
-  hitPoint: 100
-  paused: 0
-  distance: 1
-  animator: {fileID: 1364976730100926592}
 --- !u!114 &2134996662076923227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,11 +129,49 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
+  observableSearch: 0
+  ObservedComponents:
+  - {fileID: 4906932910911892298}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &4906932910911892298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900713472245016983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e7cb724808c322458aa4d15f5035fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 1
+  m_TeleportEnabled: 0
+  m_TeleportIfDistanceGreaterThan: 3
+--- !u!114 &6165298225741177590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900713472245016983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65d8dfd9295b044ea5b6179825a7c66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myRigidbody: {fileID: 3354360375610289229}
+  animator: {fileID: 1364976730100926592}
+  photonView: {fileID: 2134996662076923227}
+  speed: 1
+  speedInPit: 0.1
+  speedInThorn: 0.3
+  hitPoint: 100
+  paused: 0
+  distance: 1
 --- !u!1 &6638777864899133768
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,9 @@ namespace Ceresta
     public class PlayerController : MonoBehaviour
     {
         public Rigidbody2D myRigidbody;
+        public Animator animator;
+        public PhotonView photonView;
+
         public float speed = 1;
         public float speedInPit = 0.1f;
         public float speedInThorn = 0.3f;
@@ -25,7 +28,6 @@ namespace Ceresta
 
         private GameController gameController;
         private VisualEffect vfxRenderer;
-        public Animator animator;
 
         void Start()
         {
@@ -34,14 +36,28 @@ namespace Ceresta
             gameController = GameObject.Find("GameController").GetComponent<GameController>();
             // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
             // vfxRenderer.SetBool("IsCollideWithSphere", true);
-            var jobName = PlayerPrefs.GetString("Job");
-            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
-
+            if (photonView.IsMine)
+            {
+                var jobName = PlayerPrefs.GetString("Job");
+                animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
+            }
+            else
+            {
+                if (photonView.Owner.CustomProperties.TryGetValue("Job", out object job))
+                {
+                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{(string)job}/{(string)job}");
+                }
+            }
         }
 
         // Update is called once per frame
-        void Update()
+        void FixedUpdate()
         {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+
             if (Application.platform == RuntimePlatform.Android)
             {
                 MoveWithGyroscope();
