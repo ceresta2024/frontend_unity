@@ -32,7 +32,7 @@ namespace Ceresta
             players = new Dictionary<string, Player>();
             foreach (var p in PhotonNetwork.PlayerList)
             {
-                var prefab = Resources.Load<GameObject>("Player");
+                var prefab = Resources.Load<GameObject>("PlayerListItem");
                 var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
                 var player = playerObject.GetComponent<Player>();
                 if (p.CustomProperties.TryGetValue("Job", out object job) && p.CustomProperties.TryGetValue("Score", out object score))
@@ -67,7 +67,7 @@ namespace Ceresta
         {
             totalPlayers.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / 20";
 
-            var prefab = Resources.Load<GameObject>("Player");
+            var prefab = Resources.Load<GameObject>("PlayerListItem");
             var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
             var player = playerObject.GetComponent<Player>();
 

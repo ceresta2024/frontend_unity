@@ -25,14 +25,18 @@ namespace Ceresta
 
         private GameController gameController;
         private VisualEffect vfxRenderer;
+        public Animator animator;
 
-        void Awake()
+        void Start()
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
             gameController = GameObject.Find("GameController").GetComponent<GameController>();
             // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
             // vfxRenderer.SetBool("IsCollideWithSphere", true);
+            var jobName = PlayerPrefs.GetString("Job");
+            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
+
         }
 
         // Update is called once per frame
@@ -69,7 +73,16 @@ namespace Ceresta
                     Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
                 }
             }
-            vfxRenderer.SetVector3("ColliderPos", transform.position);
+            if (myRigidbody.velocity.magnitude > 0)
+            {
+                animator.Play("Walk");
+            }
+            else
+            {
+                animator.Play("Idle");
+            }
+            myRigidbody.SetRotation(Mathf.Atan2(myRigidbody.velocity.y, myRigidbody.velocity.x) * Mathf.Rad2Deg - 90);
+            // vfxRenderer.SetVector3("ColliderPos", transform.position);
         }
 
         private void MoveWithKeyboard()

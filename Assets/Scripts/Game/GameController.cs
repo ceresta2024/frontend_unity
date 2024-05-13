@@ -24,16 +24,9 @@ namespace Ceresta
         // Start is called before the first frame update
         void Start()
         {
-            Debug.Log(PhotonNetwork.CurrentRoom.Name);
-            var position = Vector2.zero;
-            var rotation = Quaternion.Euler(Vector2.zero);
-            object mapIdFromProp;
-            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out mapIdFromProp))
-            {
-                var mapId = (int)mapIdFromProp;
-                PhotonNetwork.InstantiateRoomObject($"Maps/{mapId}", position, rotation);
-            }
             mainCamera = Camera.main;
+            InitMap();
+            SpawnPlayer();
         }
 
         // Update is called once per frame
@@ -59,12 +52,24 @@ namespace Ceresta
             SceneManager.LoadScene("MainUI");
         }
 
-        private void StartGame()
+        private void InitMap()
         {
-            Debug.Log("Start game");
-            var position = GameObject.Find("Start").transform.position;
+            var position = Vector2.zero;
             var rotation = Quaternion.Euler(Vector2.zero);
-            player = PhotonNetwork.Instantiate("Player", position, rotation);
+            if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out object mapId))
+            {
+                PhotonNetwork.InstantiateRoomObject($"Maps/{(int)mapId}", position, rotation);
+            }
+        }
+
+        // public override void
+
+        private void SpawnPlayer()
+        {
+            var startObject = GameObject.Find("Start");
+            Debug.Log(startObject);
+            // var rotation = Quaternion.Euler(Vector2.zero);
+            // player = PhotonNetwork.Instantiate("Player", startObject.transform.position, rotation);
         }
 
         public IEnumerator EndOfGame()

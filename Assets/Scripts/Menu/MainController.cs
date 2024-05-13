@@ -51,8 +51,6 @@ namespace Ceresta
 
         void Start()
         {
-            PhotonNetwork.AutomaticallySyncScene = true;
-
             goldText.text = PlayerPrefs.GetInt("Gold").ToString();
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();
 
