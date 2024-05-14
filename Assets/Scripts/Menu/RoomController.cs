@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Ceresta
 {
@@ -93,11 +95,32 @@ namespace Ceresta
 
         private void OnCountdownTimerIsExpired()
         {
-            Debug.Log("Start Game");
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.IsVisible = false;
+            StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
+        }
 
-            PhotonNetwork.LoadLevel("GameScene");
+        private IEnumerator AddUserToServer(string roomName)
+        {
+            var accessToken = PlayerPrefs.GetString("AccessToken", "");
+            var url = $"{Config.baseUrl}/game/add_user/?room_id={roomName}";
+            var request = UnityWebRequest.Post(url, "", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                var responseText = request.downloadHandler.text;
+                Debug.Log(responseText);
+
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                PhotonNetwork.CurrentRoom.IsVisible = false;
+
+                PhotonNetwork.LoadLevel("GameScene");
+            }
+            else
+            {
+                Debug.Log("Error: " + request.downloadHandler.text);
+            }
         }
     }
 }

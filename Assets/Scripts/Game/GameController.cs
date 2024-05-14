@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Ceresta
 {
@@ -28,9 +29,26 @@ namespace Ceresta
             [SerializeField]
             public ItemData[] data;
         }
-        
+
+        class RewardRequest
+        {
+            public string room_id;
+            public int map_id;
+        }
+
+        class RewardResponse
+        {
+            public int user_score;
+            public int item_id;
+            public string item_name;
+            public int gold;
+        }
+
         public Weather weather;
         public GameObject itemsListContent;
+        public GameObject rewardBox;
+        public TMP_Text scoreText;
+        public Image rewardImage;
 
         private GameObject player;
         private Camera mainCamera;
@@ -59,7 +77,7 @@ namespace Ceresta
 
         public void OnBackButtonClicked()
         {
-            PhotonNetwork.LeaveRoom();
+            StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
         }
 
         public override void OnLeftRoom()
@@ -82,15 +100,9 @@ namespace Ceresta
             StartCoroutine(GetInventoryItems());
         }
 
-        public IEnumerator EndOfGame()
+        public void EndOfGame()
         {
-            float timer = 5.0f;
-            while (timer > 0.0f)
-            {
-                yield return new WaitForEndOfFrame();
-                timer -= Time.deltaTime;
-            }
-            PhotonNetwork.LeaveRoom();
+            StartCoroutine(GetReward(PhotonNetwork.CurrentRoom.Name));
         }
 
         private IEnumerator GetInventoryItems()
@@ -116,6 +128,58 @@ namespace Ceresta
                     var sp = Resources.Load<Sprite>($"Items/{itemData.item_id}");
                     item.image.sprite = sp;
                 }
+            }
+            else
+            {
+                Debug.Log("Error: " + request.downloadHandler.text);
+            }
+        }
+
+        private IEnumerator RemoveUserFromServer(string roomName)
+        {
+            var accessToken = PlayerPrefs.GetString("AccessToken", "");
+            var url = $"{Config.baseUrl}/game/remove_user/?room_id={roomName}";
+            var request = UnityWebRequest.Post(url, "", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                var responseText = request.downloadHandler.text;
+                Debug.Log(responseText);
+
+                PhotonNetwork.LeaveRoom();
+            }
+            else
+            {
+                Debug.Log("Error: " + request.downloadHandler.text);
+            }
+        }
+
+        private IEnumerator GetReward(string roomName)
+        {
+            var accessToken = PlayerPrefs.GetString("AccessToken", "");
+            var url = $"{Config.baseUrl}/game/get_reward/";
+            var body = new RewardRequest
+            {
+                room_id = roomName,
+                map_id = 3,
+            };
+            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                var responseText = request.downloadHandler.text;
+                var res = JsonUtility.FromJson<RewardResponse>(responseText);
+                rewardImage.sprite = Resources.Load<Sprite>($"Items/{res.item_id}");
+                scoreText.text = $"Score: {res.user_score}";
+                rewardBox.SetActive(true);
+
+                PhotonNetwork.LeaveRoom();
             }
             else
             {

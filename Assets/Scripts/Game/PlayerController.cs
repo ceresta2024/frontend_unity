@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.VFX;
 
 namespace Ceresta
@@ -153,13 +154,9 @@ namespace Ceresta
             }
             else if (collision.gameObject.CompareTag("Goal"))
             {
-                foreach (var p in PhotonNetwork.PlayerList)
-                {
-
-                }
                 Debug.Log("you reached to the goal");
                 myRigidbody.velocity = Vector2.zero;
-                StartCoroutine(gameController.EndOfGame());
+                gameController.EndOfGame();
             }
         }
 
