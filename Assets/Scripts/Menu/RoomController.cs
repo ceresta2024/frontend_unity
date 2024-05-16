@@ -112,9 +112,6 @@ namespace Ceresta
                 var responseText = request.downloadHandler.text;
                 Debug.Log(responseText);
 
-                PhotonNetwork.CurrentRoom.IsOpen = false;
-                PhotonNetwork.CurrentRoom.IsVisible = false;
-
                 PhotonNetwork.LoadLevel("GameScene");
             }
             else

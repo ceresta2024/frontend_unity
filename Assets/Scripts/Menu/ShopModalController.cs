@@ -96,8 +96,8 @@ namespace Ceresta
 
         private void OnSellSuccess(ShopResponse res)
         {
-            gameObject.SetActive(false);
             inventoryController.RefreshItems();
+            gameObject.SetActive(false);
         }
     }
 }

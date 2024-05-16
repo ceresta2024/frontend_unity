@@ -14,11 +14,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Ceresta
 {
@@ -36,6 +38,11 @@ namespace Ceresta
     /// </remarks>
     public class CountdownTimer : MonoBehaviourPunCallbacks
     {
+        class ServerTimeResponse
+        {
+            public long unixtime;
+        }
+
         /// <summary>
         ///     OnCountdownTimerHasExpired delegate.
         /// </summary>
@@ -46,6 +53,7 @@ namespace Ceresta
         private bool isTimerRunning;
 
         private long startTime;
+        private long currentTime;
 
         [Header("Reference to a Text component for visualizing the countdown")]
         public TMP_Text Text;
@@ -115,26 +123,13 @@ namespace Ceresta
 
         private void Initialize()
         {
-            long propStartTime;
-            if (TryGetStartTime(out propStartTime))
-            {
-                this.startTime = propStartTime;
-                Debug.Log("Initialize sets StartTime " + this.startTime + " server time now: " + ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() + " remain: " + TimeRemaining());
-
-
-                this.isTimerRunning = TimeRemaining() > 0;
-
-                if (this.isTimerRunning)
-                    OnTimerRuns();
-                else
-                    OnTimerEnds();
-            }
+            StartCoroutine(GetCurrentTime());
         }
 
 
         private float TimeRemaining()
         {
-            long timer = this.startTime - ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+            long timer = this.startTime - currentTime;
             return timer;
         }
 
@@ -150,6 +145,43 @@ namespace Ceresta
             }
 
             return false;
+        }
+
+        private IEnumerator GetCurrentTime()
+        {
+            var request = UnityWebRequest.Get("https://worldtimeapi.org/api/timezone/utc");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success && TryGetStartTime(out long propStartTime))
+            {
+                var responseText = request.downloadHandler.text;
+                Debug.Log("Response: " + responseText);
+                var res = JsonUtility.FromJson<ServerTimeResponse>(responseText);
+                this.currentTime = res.unixtime;
+
+                this.startTime = propStartTime;
+                Debug.Log("Initialize sets StartTime " + this.startTime + " server time now: " + this.currentTime + " remain: " + TimeRemaining());
+
+
+                this.isTimerRunning = TimeRemaining() > 0;
+
+                if (this.isTimerRunning)
+                    OnTimerRuns();
+                else
+                    OnTimerEnds();
+
+                StartCoroutine(UpdateCurrentTime());
+            }
+        }
+
+        private IEnumerator UpdateCurrentTime()
+        {
+            while (true)
+            {
+                this.currentTime += 1;
+                yield return new WaitForSeconds(1);
+            }
         }
     }
 }

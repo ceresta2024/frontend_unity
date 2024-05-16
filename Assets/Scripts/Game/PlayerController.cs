@@ -5,6 +5,7 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.VFX;
+using WebSocketSharp;
 
 namespace Ceresta
 {
@@ -40,13 +41,24 @@ namespace Ceresta
             if (photonView.IsMine)
             {
                 var jobName = PlayerPrefs.GetString("Job");
-                animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
+                if (jobName.IsNullOrEmpty())
+                {
+                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/doctor/doctor");
+                }
+                else
+                {
+                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
+                }
             }
             else
             {
                 if (photonView.Owner.CustomProperties.TryGetValue("Job", out object job))
                 {
                     animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{(string)job}/{(string)job}");
+                }
+                else
+                {
+                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/doctor/doctor");
                 }
             }
         }
