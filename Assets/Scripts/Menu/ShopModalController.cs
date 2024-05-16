@@ -20,17 +20,33 @@ namespace Ceresta
             public string message;
         }
 
+        public GameObject loadingSpinner;
+        public QtyInput qtyInput;
         public Image image;
+        public SalesController salesController;
+        public InventoryController inventoryController;
         private int itemId;
         private int qty;
         private bool owned;
 
-        public void Show(int itemId)
+        public void ShowToBuy(int itemId, int maxQty)
         {
+            this.itemId = itemId;
             var sp = Resources.Load<Sprite>($"Items/{itemId}");
             image.sprite = sp;
+            owned = false;
+            qtyInput.maxQty = maxQty;
             gameObject.SetActive(true);
+        }
+
+        public void ShowToSell(int itemId, int maxQty)
+        {
             this.itemId = itemId;
+            var sp = Resources.Load<Sprite>($"Items/{itemId}");
+            image.sprite = sp;
+            owned = true;
+            qtyInput.maxQty = maxQty;
+            gameObject.SetActive(true);
         }
 
         public void OnConfirmClicked()
@@ -52,62 +68,36 @@ namespace Ceresta
             qty = int.Parse(inputValue);
         }
 
-        public void SetOwned(bool owned)
-        {
-            this.owned = owned;
-        }
-
         private IEnumerator BuyItem(int itemId, int qty)
         {
-            var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = Config.baseUrl + "/shop/buy_item/";
             var body = new ShopRequest
             {
                 item_id = itemId,
                 quantity = qty,
             };
-            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<ShopResponse>(responseText);
-                gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-            }
+            return WebRequestHandler.Post<ShopResponse>("/shop/buy_item/", body, OnBuySuccess, loadingSpinner);
         }
 
         private IEnumerator SellItem(int itemId, int qty)
         {
-            var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = Config.baseUrl + "/shop/sell_item/";
             var body = new ShopRequest
             {
                 item_id = itemId,
                 quantity = qty,
             };
-            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+            return WebRequestHandler.Post<ShopResponse>("/shop/sell_item/", body, OnSellSuccess, loadingSpinner);
+        }
 
-            yield return request.SendWebRequest();
+        private void OnBuySuccess(ShopResponse res)
+        {
+            salesController.RefreshItems();
+            gameObject.SetActive(false);
+        }
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                Debug.Log(responseText);
-                var res = JsonUtility.FromJson<ShopResponse>(responseText);
-                gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-            }
+        private void OnSellSuccess(ShopResponse res)
+        {
+            gameObject.SetActive(false);
+            inventoryController.RefreshItems();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Ceresta
             totalPlayers.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / 20";
             CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
 
-            playerListContent.transform.DetachChildren();
+            playerListContent.transform.ClearChildren();
             players = new Dictionary<string, Player>();
             foreach (var p in PhotonNetwork.PlayerList)
             {
@@ -101,7 +101,7 @@ namespace Ceresta
         private IEnumerator AddUserToServer(string roomName)
         {
             var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = $"{Config.baseUrl}/game/add_user/?room_id={roomName}";
+            var url = $"{CerestaGame.baseUrl}/game/add_user/?room_id={roomName}";
             var request = UnityWebRequest.Post(url, "", "application/json");
             request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 

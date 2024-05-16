@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2319,11 +2318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c557f1d837481c489b1d8ce92b433af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  searchInput: {fileID: 2002065519}
   goldText: {fileID: 1194519486}
-  shopContent: {fileID: 1322475178}
-  inventoryContent: {fileID: 948323499}
-  shopModal: {fileID: 1427140113}
 --- !u!1 &270793061
 GameObject:
   m_ObjectHideFlags: 0
@@ -3694,8 +3689,9 @@ GameObject:
   m_Component:
   - component: {fileID: 368934837}
   - component: {fileID: 368934838}
+  - component: {fileID: 368934839}
   m_Layer: 5
-  m_Name: ShopPanel
+  m_Name: SalesPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3729,6 +3725,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 368934836}
   m_CullTransparentMesh: 1
+--- !u!114 &368934839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 368934836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f3a2961445aae747b3648e8689948a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  searchInput: {fileID: 2002065519}
+  salesContent: {fileID: 1322475177}
+  modalController: {fileID: 1427140117}
 --- !u!1 &401149862
 GameObject:
   m_ObjectHideFlags: 0
@@ -8954,6 +8965,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   profilePage: {fileID: 1314474438}
   profileController: {fileID: 1314474440}
+  loadingSpinner: {fileID: 1271830609}
   jobListContent: {fileID: 472163530}
   selectedName: {fileID: 1769742521}
   selectedDescription: {fileID: 401149864}
@@ -14598,6 +14610,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1402411268}
   - component: {fileID: 1402411269}
+  - component: {fileID: 1402411270}
   m_Layer: 5
   m_Name: InventoryPanel
   m_TagString: Untagged
@@ -14633,6 +14646,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1402411267}
   m_CullTransparentMesh: 1
+--- !u!114 &1402411270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402411267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee415190b37d6694fa1b7ace376bab6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  searchInput: {fileID: 2002065519}
+  inventoryContent: {fileID: 948323498}
+  modalController: {fileID: 1427140117}
 --- !u!1 &1421056978
 GameObject:
   m_ObjectHideFlags: 0
@@ -15019,7 +15047,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3938a5788b28341a145e1c145be51e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadingSpinner: {fileID: 1271830609}
+  qtyInput: {fileID: 1448128268}
   image: {fileID: 143671114}
+  salesController: {fileID: 368934839}
+  inventoryController: {fileID: 1402411270}
 --- !u!1 &1431871712
 GameObject:
   m_ObjectHideFlags: 0
@@ -15240,6 +15272,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1446295340}
   m_CullTransparentMesh: 1
+--- !u!114 &1448128268 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1571113633874472541, guid: 65afce5be13d1cc42a0b7f3fdde7237e, type: 3}
+  m_PrefabInstance: {fileID: 422458801}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d31899156e8754ba5beed7d4e879b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1448875645
 GameObject:
   m_ObjectHideFlags: 0
@@ -15386,7 +15429,7 @@ GameObject:
   - component: {fileID: 1449747588}
   - component: {fileID: 1449747589}
   m_Layer: 5
-  m_Name: ShopTab
+  m_Name: SaleTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15500,6 +15543,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: Tab, Assembly-CSharp
         m_MethodName: OnClicked
         m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 258122863}
+        m_TargetAssemblyTypeName: Ceresta.ShopController, Assembly-CSharp
+        m_MethodName: GetSaleItems
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -19817,8 +19872,20 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 258122863}
-        m_TargetAssemblyTypeName: Ceresta.ShopController, Assembly-CSharp
+      - m_Target: {fileID: 368934839}
+        m_TargetAssemblyTypeName: Ceresta.SalesController, Assembly-CSharp
+        m_MethodName: OnKeywordSubmit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1402411270}
+        m_TargetAssemblyTypeName: Ceresta.InventoryController, Assembly-CSharp
         m_MethodName: OnKeywordSubmit
         m_Mode: 0
         m_Arguments:

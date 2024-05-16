@@ -33,30 +33,20 @@ namespace Ceresta
         public void RegisterWithCredential()
         {
             StartCoroutine(RegisterWithCredential(username.text, email.text, password.text));
-            spinner.SetActive(true);
         }
 
-        IEnumerator RegisterWithCredential(string username, string email, string password)
+        private IEnumerator RegisterWithCredential(string username, string email, string password)
         {
             var body = new RegisterRequest { username = username, email = email, password = password };
-            var url = Config.baseUrl + "/user/register/";
-            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
+            return WebRequestHandler.Post<RegisterResponse>("/user/register/", body, OnRegisterSuccess, spinner);
+        }
 
-            yield return request.SendWebRequest();
+        private void OnRegisterSuccess(RegisterResponse res)
+        {
+            notification.text = res.message;
+            notificationPanel.SetActive(true);
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var res = JsonUtility.FromJson<RegisterResponse>(request.downloadHandler.text);
-                notification.text = res.message;
-                notificationPanel.SetActive(true);
-                spinner.SetActive(false);
-                loginPage.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-                spinner.SetActive(false);
-            }
+            loginPage.SetActive(true);
         }
     }
 }

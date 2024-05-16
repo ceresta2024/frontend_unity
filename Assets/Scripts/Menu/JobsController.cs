@@ -42,6 +42,7 @@ namespace Ceresta
 
         public GameObject profilePage;
         public ProfileController profileController;
+        public GameObject loadingSpinner;
 
         public GameObject jobListContent;
         public TMP_Text selectedName;
@@ -60,7 +61,7 @@ namespace Ceresta
             selectedName.text = jobName;
             selectedDescription.text = jobDescription;
 
-            itemListContent.transform.DetachChildren();
+            itemListContent.transform.ClearChildren();
             foreach (var itemData in items)
             {
                 var prefab = Resources.Load<GameObject>("RequiredItem");
@@ -79,51 +80,39 @@ namespace Ceresta
 
         private IEnumerator GetJobs()
         {
-            var accessToken = PlayerPrefs.GetString("AccessToken");
-            var url = Config.baseUrl + "/user/get_jobs/";
-            var request = UnityWebRequest.Get(url);
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+            return WebRequestHandler.Get<JobListResponse>("/user/get_jobs/", OnGetJobsSuccess);
+        }
 
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+        private void OnGetJobsSuccess(JobListResponse res)
+        {
+            jobListContent.transform.ClearChildren();
+            var jobName = PlayerPrefs.GetString("Job");
+            foreach (var jobData in res.data)
             {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<JobListResponse>(responseText);
+                var prefab = Resources.Load<GameObject>("Job");
+                var itemObject = GameObject.Instantiate(prefab, jobListContent.transform);
 
-                jobListContent.transform.DetachChildren();
-                var jobName = PlayerPrefs.GetString("Job");
-                foreach (var jobData in res.data)
+                var toggle = itemObject.GetComponent<Toggle>();
+                toggle.group = jobListContent.GetComponent<ToggleGroup>();
+                toggle.isOn = false;
+
+                var image = itemObject.GetComponent<Image>();
+                image.sprite = Resources.Load<Sprite>($"Jobs/{jobData.name}");
+
+                var job = itemObject.GetComponent<Job>();
+                job.jobId = jobData.id;
+                job.jobName = jobData.name;
+                job.description = jobData.description;
+                job.items = jobData.items;
+                job.controller = this;
+
+                if (jobData.name == jobName)
                 {
-                    var prefab = Resources.Load<GameObject>("Job");
-                    var itemObject = GameObject.Instantiate(prefab, jobListContent.transform);
-
-                    var toggle = itemObject.GetComponent<Toggle>();
-                    toggle.group = jobListContent.GetComponent<ToggleGroup>();
-                    toggle.isOn = false;
-
-                    var image = itemObject.GetComponent<Image>();
-                    image.sprite = Resources.Load<Sprite>($"Jobs/{jobData.name}");
-
-                    var job = itemObject.GetComponent<Job>();
-                    job.jobId = jobData.id;
-                    job.jobName = jobData.name;
-                    job.description = jobData.description;
-                    job.items = jobData.items;
-                    job.controller = this;
-
-                    if (jobData.name == jobName)
-                    {
-                        toggle.isOn = true;
-                        profileController.jobText.text = jobData.name;
-                        var sp = Resources.Load<Sprite>($"Jobs/{jobData.name}");
-                        profileController.avatar.sprite = sp;
-                    }
+                    toggle.isOn = true;
+                    profileController.jobText.text = jobData.name;
+                    var sp = Resources.Load<Sprite>($"Jobs/{jobData.name}");
+                    profileController.avatar.sprite = sp;
                 }
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
             }
         }
 
@@ -133,31 +122,17 @@ namespace Ceresta
             {
                 job_id = selectedId
             };
-            var url = Config.baseUrl + "/user/set_job/";
-            var accessToken = PlayerPrefs.GetString("AccessToken");
+            return WebRequestHandler.Post<SetJobResponse>("/user/set_job/", body, OnSetJobSuccess, loadingSpinner);
+        }
 
-            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+        private void OnSetJobSuccess(SetJobResponse res)
+        {
+            gameObject.SetActive(false);
+            profilePage.SetActive(true);
 
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<SetJobResponse>(responseText);
-                Debug.Log(res.message);
-
-                gameObject.SetActive(false);
-                profilePage.SetActive(true);
-
-                profileController.jobText.text = selectedName.text;
-                profileController.avatar.sprite = Resources.Load<Sprite>($"Jobs/{selectedName.text}");
-                PlayerPrefs.SetString("Job", selectedName.text);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-            }
+            profileController.jobText.text = selectedName.text;
+            profileController.avatar.sprite = Resources.Load<Sprite>($"Jobs/{selectedName.text}");
+            PlayerPrefs.SetString("Job", selectedName.text);
         }
     }
 }

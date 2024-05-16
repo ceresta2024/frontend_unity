@@ -29,7 +29,7 @@ namespace Ceresta
             public string password;
         }
 
-        class LoginResponse
+        class UserResponse
         {
             public int id;
             public string name;
@@ -97,18 +97,12 @@ namespace Ceresta
         // Start is called before the first frame update
         void Start()
         {
-            var accessToken = PlayerPrefs.GetString("AccessToken");
-            if (!accessToken.IsNullOrEmpty())
-            {
-                StartCoroutine(CheckIfLoggedIn(accessToken));
-                spinner.SetActive(true);
-            }
+            StartCoroutine(CheckIfLoggedIn());
         }
 
         public void OnLoginClicked()
         {
             StartCoroutine(LoginWithCredential(email.text, password.text));
-            spinner.SetActive(true);
         }
 
         IEnumerator LoginWithCredential(string email, string password)
@@ -118,59 +112,35 @@ namespace Ceresta
                 email = email,
                 password = password
             };
-            var url = Config.baseUrl + "/user/login/";
-            var request = UnityWebRequest.Post(url, JsonUtility.ToJson(body), "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<LoginResponse>(responseText);
-
-                PlayerPrefs.SetString("AccessToken", res.access_token);
-                PlayerPrefs.SetInt("Gold", res.gold);
-                PlayerPrefs.SetString("Username", res.name);
-                PlayerPrefs.SetInt("Score", res.score);
-                PlayerPrefs.SetString("Job", res.job);
-
-                notification.text = "You have successfully logged in.";
-                notificationPanel.SetActive(true);
-                SceneManager.LoadScene("MainUI");
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-                spinner.SetActive(false);
-            }
+            return WebRequestHandler.Post<UserResponse>("/user/login/", body, OnLoginSuccess, spinner);
         }
 
-        IEnumerator CheckIfLoggedIn(string accessToken)
+        private void OnLoginSuccess(UserResponse res)
         {
-            var url = Config.baseUrl + "/user/getinfo";
-            var request = UnityWebRequest.Post(url, "", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+            PlayerPrefs.SetString("AccessToken", res.access_token);
+            PlayerPrefs.SetInt("Gold", res.gold);
+            PlayerPrefs.SetString("Username", res.name);
+            PlayerPrefs.SetInt("Score", res.score);
+            PlayerPrefs.SetString("Job", res.job);
 
-            yield return request.SendWebRequest();
+            notification.text = "You have successfully logged in.";
+            notificationPanel.SetActive(true);
+            SceneManager.LoadScene("MainUI");
+        }
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<LoginResponse>(responseText);
+        private IEnumerator CheckIfLoggedIn()
+        {
+            return WebRequestHandler.Post<UserResponse>("/user/getinfo", "", OnGetInfoSuccess, spinner);
+        }
 
-                PlayerPrefs.SetInt("Gold", res.gold);
-                PlayerPrefs.SetString("Username", res.name);
-                PlayerPrefs.SetInt("Score", res.score);
-                PlayerPrefs.SetString("Job", res.job);
+        private void OnGetInfoSuccess(UserResponse res)
+        {
+            PlayerPrefs.SetInt("Gold", res.gold);
+            PlayerPrefs.SetString("Username", res.name);
+            PlayerPrefs.SetInt("Score", res.score);
+            PlayerPrefs.SetString("Job", res.job);
 
-                SceneManager.LoadScene("MainUI");
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-                PlayerPrefs.DeleteKey("AccessToken");
-                spinner.SetActive(false);
-            }
+            SceneManager.LoadScene("MainUI");
         }
 
         public void OnFacebookButtonClicked()

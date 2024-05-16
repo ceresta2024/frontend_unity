@@ -108,7 +108,7 @@ namespace Ceresta
         private IEnumerator GetInventoryItems()
         {
             var accessToken = PlayerPrefs.GetString("AccessToken");
-            var url = $"{Config.baseUrl}/shop/get_inventory_list/";
+            var url = $"{CerestaGame.baseUrl}/shop/get_inventory_list/";
             var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
@@ -116,7 +116,7 @@ namespace Ceresta
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                itemsListContent.transform.DetachChildren();
+                itemsListContent.transform.ClearChildren();
                 var responseText = request.downloadHandler.text;
                 var res = JsonUtility.FromJson<ItemsResponse>(responseText);
                 foreach (var itemData in res.data)
@@ -138,7 +138,7 @@ namespace Ceresta
         private IEnumerator RemoveUserFromServer(string roomName)
         {
             var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = $"{Config.baseUrl}/game/remove_user/?room_id={roomName}";
+            var url = $"{CerestaGame.baseUrl}/game/remove_user/?room_id={roomName}";
             var request = UnityWebRequest.Post(url, "", "application/json");
             request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
@@ -160,7 +160,7 @@ namespace Ceresta
         private IEnumerator GetReward(string roomName)
         {
             var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = $"{Config.baseUrl}/game/get_reward/";
+            var url = $"{CerestaGame.baseUrl}/game/get_reward/";
             var body = new RewardRequest
             {
                 room_id = roomName,

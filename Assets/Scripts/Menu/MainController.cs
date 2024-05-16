@@ -25,6 +25,8 @@ namespace Ceresta
         {
             [SerializeField]
             public RoomData[] data;
+            [SerializeField]
+            public string start_time;
         }
 
         [Header("Pages")]
@@ -49,14 +51,13 @@ namespace Ceresta
         public GameObject roomListContent;
         private Dictionary<string, Room> rooms;
 
-        void Start()
+        void Awake()
         {
             goldText.text = PlayerPrefs.GetInt("Gold").ToString();
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();
 
             rooms ??= new Dictionary<string, Room>();
-            SetLoading(true);
-            StartCoroutine(GetStartTime());
+            StartCoroutine(GetStartTimeAndRoomList());
         }
 
         void Update()
@@ -82,12 +83,11 @@ namespace Ceresta
         {
             if (!PhotonNetwork.InLobby)
             {
-                PhotonNetwork.JoinLobby();
                 SetLoading(true);
+                PhotonNetwork.JoinLobby();
             }
 
             SetActivePage("LobbyPage");
-            StartCoroutine(GetRoomList());
         }
 
         public override void OnJoinedLobby()
@@ -104,40 +104,6 @@ namespace Ceresta
         {
             PhotonNetwork.Disconnect();
             SetActivePage("StartPage");
-        }
-
-        private IEnumerator GetRoomList()
-        {
-            var url = Config.baseUrl + "/game/get_roomlist/";
-            var accessToken = PlayerPrefs.GetString("AccessToken");
-            var request = UnityWebRequest.Post(url, "", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                var responseText = request.downloadHandler.text;
-                var res = JsonUtility.FromJson<RoomListResponse>(responseText);
-                foreach (var roomData in res.data)
-                {
-                    var prefab = Resources.Load<GameObject>("Room");
-                    var roomObject = GameObject.Instantiate(prefab, roomListContent.transform);
-                    var room = roomObject.GetComponent<Room>();
-                    room.Initialize(roomData.room_id, roomData.map_id, startTime);
-                    room.button.onClick.AddListener(() => {
-                        SetActivePage("RoomPage");
-                        SetLoading(true);
-                    });
-
-                    if (!rooms.ContainsKey(roomData.room_id)) rooms.Add(roomData.room_id, room);
-                }
-                SetLoading(false);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
-                SetLoading(false);
-            }
         }
 
         private void SetActivePage(string activePage)
@@ -160,24 +126,27 @@ namespace Ceresta
             }
         }
 
-        private IEnumerator GetStartTime()
+        private IEnumerator GetStartTimeAndRoomList()
         {
-            var url = Config.baseUrl + "/game/get_starttime/";
-            var request = UnityWebRequest.Get(url);
+            return WebRequestHandler.Post<RoomListResponse>("/game/get_roomlist/", "", OnWebSuccess, loadingSpinner);
+        }
 
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+        private void OnWebSuccess(RoomListResponse res)
+        {
+            startTime = DateTime.ParseExact(res.start_time, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).ToLocalTime();
+            foreach (var roomData in res.data)
             {
-                var dateTimeText = request.downloadHandler.text;
-                dateTimeText = dateTimeText.Replace("\"", "");
-                startTime = DateTime.ParseExact(dateTimeText, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).ToLocalTime();
+                var prefab = Resources.Load<GameObject>("Room");
+                var roomObject = GameObject.Instantiate(prefab, roomListContent.transform);
+                var room = roomObject.GetComponent<Room>();
+                room.Initialize(roomData.room_id, roomData.map_id, startTime);
+                room.button.onClick.AddListener(() =>
+                {
+                    SetActivePage("RoomPage");
+                    SetLoading(true);
+                });
 
-                SetLoading(false);
-            }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.text);
+                if (!rooms.ContainsKey(roomData.room_id)) rooms.Add(roomData.room_id, room);
             }
         }
     }
