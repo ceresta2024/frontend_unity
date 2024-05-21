@@ -23,7 +23,7 @@ namespace Ceresta
 
         public void OnLogoutClicked()
         {
-            PlayerPrefs.DeleteKey("AccessToken");
+            PlayerPrefs.DeleteAll();
             SceneManager.LoadScene("AuthUI");
         }
     }

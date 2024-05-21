@@ -122,7 +122,7 @@ namespace Ceresta
             {
                 job_id = selectedId
             };
-            return WebRequestHandler.Post<SetJobResponse>("/user/set_job/", body, OnSetJobSuccess, loadingSpinner);
+            return WebRequestHandler.Post<SetJobResponse>("/user/set_job/", body, OnSetJobSuccess, null, loadingSpinner);
         }
 
         private void OnSetJobSuccess(SetJobResponse res)

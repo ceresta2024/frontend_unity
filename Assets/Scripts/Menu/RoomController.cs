@@ -28,7 +28,7 @@ namespace Ceresta
             SetLoading(false);
             timer.enabled = true;
             totalPlayers.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / 20";
-            CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
+            // CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
 
             playerListContent.transform.ClearChildren();
             players = new Dictionary<string, Player>();
@@ -58,7 +58,7 @@ namespace Ceresta
 
         public override void OnLeftRoom()
         {
-            CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
+            // CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
             timer.enabled = false;
             lobbyPage.SetActive(true);
             roomPage.SetActive(false);
@@ -86,6 +86,11 @@ namespace Ceresta
 
             Destroy(players[otherPlayer.NickName].gameObject);
             players.Remove(otherPlayer.NickName);
+        }
+
+        public void OnStartClicked()
+        {
+            StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
         }
 
         private void SetLoading(bool loading)

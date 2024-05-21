@@ -41,6 +41,12 @@ namespace Ceresta
             public string access_token;
         }
 
+        class NicknameResponse
+        {
+            public string username;
+            public string access_token;
+        }
+
         void Awake()
         {
             if (!FB.IsInitialized)
@@ -112,7 +118,7 @@ namespace Ceresta
                 email = email,
                 password = password
             };
-            return WebRequestHandler.Post<UserResponse>("/user/login/", body, OnLoginSuccess, spinner);
+            return WebRequestHandler.Post<UserResponse>("/user/login/", body, OnLoginSuccess, null, spinner);
         }
 
         private void OnLoginSuccess(UserResponse res)
@@ -121,7 +127,11 @@ namespace Ceresta
             PlayerPrefs.SetInt("Gold", res.gold);
             PlayerPrefs.SetString("Username", res.name);
             PlayerPrefs.SetInt("Score", res.score);
-            PlayerPrefs.SetString("Job", res.job);
+            if (string.IsNullOrEmpty(res.job))
+                PlayerPrefs.SetString("Job", "doctor");
+            else
+                PlayerPrefs.SetString("Job", res.job);
+            PlayerPrefs.SetString("UserType", "user");
 
             notification.text = "You have successfully logged in.";
             notificationPanel.SetActive(true);
@@ -130,7 +140,7 @@ namespace Ceresta
 
         private IEnumerator CheckIfLoggedIn()
         {
-            return WebRequestHandler.Post<UserResponse>("/user/getinfo", "", OnGetInfoSuccess, spinner);
+            return WebRequestHandler.Post<UserResponse>("/user/getinfo", "", OnGetInfoSuccess, null, spinner);
         }
 
         private void OnGetInfoSuccess(UserResponse res)
@@ -138,9 +148,18 @@ namespace Ceresta
             PlayerPrefs.SetInt("Gold", res.gold);
             PlayerPrefs.SetString("Username", res.name);
             PlayerPrefs.SetInt("Score", res.score);
-            PlayerPrefs.SetString("Job", res.job);
+            if (string.IsNullOrEmpty(res.job))
+                PlayerPrefs.SetString("Job", "doctor");
+            else
+                PlayerPrefs.SetString("Job", res.job);
+            PlayerPrefs.SetString("UserType", "user");
 
             SceneManager.LoadScene("MainUI");
+        }
+
+        private void OnGetInfoFailed()
+        {
+            StartCoroutine(GetNickname());
         }
 
         public void OnFacebookButtonClicked()
@@ -179,6 +198,23 @@ namespace Ceresta
             {
                 Debug.Log("Unsuccessful login");
             }
+        }
+
+        private IEnumerator GetNickname()
+        {
+            return WebRequestHandler.Get<NicknameResponse>("/user/get_nickname/", OnGetNicknameSuccess);
+        }
+
+        private void OnGetNicknameSuccess(NicknameResponse res)
+        {
+            PlayerPrefs.SetString("AccessToken", res.access_token);
+            PlayerPrefs.SetInt("Gold", 0);
+            PlayerPrefs.SetString("Username", res.username);
+            PlayerPrefs.SetInt("Score", 0);
+            PlayerPrefs.SetString("Job", "doctor");
+            PlayerPrefs.SetString("UserType", "guest");
+
+            SceneManager.LoadScene("MainUI");
         }
     }
 }

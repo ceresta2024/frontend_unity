@@ -178,8 +178,6 @@ namespace Ceresta
                 rewardImage.sprite = Resources.Load<Sprite>($"Items/{res.item_id}");
                 scoreText.text = $"Score: {res.user_score}";
                 rewardBox.SetActive(true);
-
-                PhotonNetwork.LeaveRoom();
             }
             else
             {

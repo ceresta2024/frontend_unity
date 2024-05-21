@@ -9,7 +9,7 @@ namespace Ceresta
 {
     public class WebRequestHandler
     {
-        public static IEnumerator Get<T>(string url, Action<T> callback)
+        public static IEnumerator Get<T>(string url, Action<T> callback, Action errorCallback = null)
         {
             var fullUrl = CerestaGame.baseUrl + url;
             var accessToken = PlayerPrefs.GetString("AccessToken", "");
@@ -33,7 +33,7 @@ namespace Ceresta
             }
         }
 
-        public static IEnumerator Post<T>(string url, object data, Action<T> callback, GameObject loadingSpinner = null)
+        public static IEnumerator Post<T>(string url, object data, Action<T> callback, Action errorCallback = null, GameObject loadingSpinner = null)
         {
             var fullUrl = CerestaGame.baseUrl + url;
             var accessToken = PlayerPrefs.GetString("AccessToken", "");
@@ -64,6 +64,10 @@ namespace Ceresta
                 {
                     PlayerPrefs.DeleteKey("AccessKey");
                     SceneManager.LoadScene("AuthUI");
+                }
+                else
+                {
+                    errorCallback?.Invoke();
                 }
             }
         }

@@ -75,7 +75,7 @@ namespace Ceresta
                 item_id = itemId,
                 quantity = qty,
             };
-            return WebRequestHandler.Post<ShopResponse>("/shop/buy_item/", body, OnBuySuccess, loadingSpinner);
+            return WebRequestHandler.Post<ShopResponse>("/shop/buy_item/", body, OnBuySuccess, null, loadingSpinner);
         }
 
         private IEnumerator SellItem(int itemId, int qty)
@@ -85,7 +85,7 @@ namespace Ceresta
                 item_id = itemId,
                 quantity = qty,
             };
-            return WebRequestHandler.Post<ShopResponse>("/shop/sell_item/", body, OnSellSuccess, loadingSpinner);
+            return WebRequestHandler.Post<ShopResponse>("/shop/sell_item/", body, OnSellSuccess, null, loadingSpinner);
         }
 
         private void OnBuySuccess(ShopResponse res)

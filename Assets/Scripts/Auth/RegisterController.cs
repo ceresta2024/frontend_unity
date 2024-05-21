@@ -38,7 +38,7 @@ namespace Ceresta
         private IEnumerator RegisterWithCredential(string username, string email, string password)
         {
             var body = new RegisterRequest { username = username, email = email, password = password };
-            return WebRequestHandler.Post<RegisterResponse>("/user/register/", body, OnRegisterSuccess, spinner);
+            return WebRequestHandler.Post<RegisterResponse>("/user/register/", body, OnRegisterSuccess, null, spinner);
         }
 
         private void OnRegisterSuccess(RegisterResponse res)
