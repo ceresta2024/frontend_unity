@@ -63,6 +63,12 @@ namespace Ceresta
             }
         }
 
+        void Update()
+        {
+            gameController.speedText.text = $"Speed: {myRigidbody.velocity.magnitude}";
+            gameController.hpText.text = $"HP: {hitPoint}";
+        }
+
         // Update is called once per frame
         void FixedUpdate()
         {

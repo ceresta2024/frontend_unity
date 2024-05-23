@@ -56,6 +56,9 @@ namespace Ceresta
         private float damping;
         private Vector3 vel = Vector3.zero;
 
+        public TMP_Text speedText;
+        public TMP_Text hpText;
+
         // Start is called before the first frame update
         void Start()
         {
