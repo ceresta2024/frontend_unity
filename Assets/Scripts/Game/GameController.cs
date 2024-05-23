@@ -58,6 +58,7 @@ namespace Ceresta
 
         public TMP_Text speedText;
         public TMP_Text hpText;
+        public TMP_Text playersText;
 
         // Start is called before the first frame update
         void Start()
@@ -99,6 +100,7 @@ namespace Ceresta
                 var startTransform = mapObject.transform.Find("Start");
                 player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
             }
+            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
 
             StartCoroutine(GetInventoryItems());
         }
@@ -186,6 +188,16 @@ namespace Ceresta
             {
                 Debug.Log("Error: " + request.downloadHandler.text);
             }
+        }
+
+        public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+        {
+            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+        }
+
+        public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+        {
+            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
         }
     }
 }

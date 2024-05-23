@@ -157,7 +157,7 @@ namespace Ceresta
             SceneManager.LoadScene("MainUI");
         }
 
-        private void OnGetInfoFailed()
+        public void OnGuestModeClicked()
         {
             StartCoroutine(GetNickname());
         }
