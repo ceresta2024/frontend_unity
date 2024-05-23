@@ -11,17 +11,32 @@ namespace Ceresta
 {
     public class PlayerController : MonoBehaviour
     {
+        class UseItemRequest
+        {
+            public int item_id;
+        }
+
+        class UseItemResponse
+        {
+
+        }
+
         public Rigidbody2D myRigidbody;
         public Animator animator;
         public PhotonView photonView;
 
         public float speed = 1;
+        private float oldSpeed = 0;
         public float speedInPit = 0.1f;
         public float speedInThorn = 0.3f;
         public int hitPoint = 100;
         public bool paused = false;
 
         public float distance = 1f;
+
+        private bool usingSpeedItem = false;
+        private float itemDuration = 0;
+        private float itemTimer = 0;
 
         private PolygonCollider2D tunnelExit;
 
@@ -36,6 +51,7 @@ namespace Ceresta
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             tunnelExit = GameObject.FindWithTag("TunnelExit").GetComponent<PolygonCollider2D>();
             gameController = GameObject.Find("GameController").GetComponent<GameController>();
+            gameController.playerController = this;
             // vfxRenderer = GameObject.Find("Fog").GetComponent<VisualEffect>();
             // vfxRenderer.SetBool("IsCollideWithSphere", true);
             if (photonView.IsMine)
@@ -106,6 +122,17 @@ namespace Ceresta
                     paused = false;
                     myRigidbody.velocity = oldVelocity;
                     Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
+                }
+            }
+            if (usingSpeedItem)
+            {
+                Debug.Log("Used item for " + itemTimer);
+                itemTimer += Time.deltaTime;
+                if (itemTimer > itemDuration)
+                {
+                    itemTimer = 0;
+                    usingSpeedItem = false;
+                    speed = oldSpeed;
                 }
             }
             if (myRigidbody.velocity.magnitude > 0)
@@ -226,6 +253,31 @@ namespace Ceresta
             var xCenter = (xMax + xMin) / 2;
             var yCenter = (yMax + yMin) / 2;
             return new Vector2(xCenter, yCenter);
+        }
+
+        public void OnUseItem(GameController.ItemData item)
+        {
+            if (item.function == 1)
+            {
+                hitPoint += int.Parse(item.hp);
+            }
+            else if (item.function == 2)
+            {
+                oldSpeed = speed;
+                speed = float.Parse(item.sp);
+                itemDuration = float.Parse(item.duration);
+                usingSpeedItem = true;
+            }
+            var body = new UseItemRequest
+            {
+                item_id = item.item_id,
+            };
+            StartCoroutine(WebRequestHandler.Post<UseItemResponse>("/game/use_item/", body, OnUseItemSuccess));
+        }
+
+        private void OnUseItemSuccess(UseItemResponse res)
+        {
+
         }
     }
 

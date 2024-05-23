@@ -6,4 +6,6 @@ using UnityEngine.UI;
 public class ItemInGame : MonoBehaviour
 {
     public Image image;
+
+    public Button button;
 }

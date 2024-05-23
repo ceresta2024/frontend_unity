@@ -14,13 +14,17 @@ namespace Ceresta
     public class GameController : MonoBehaviourPunCallbacks
     {
         [Serializable]
-        class ItemData
+        public class ItemData
         {
             public int id;
             public string name;
             public int item_id;
             public int price;
             public int quantity;
+            public int function;
+            public string hp;
+            public string sp;
+            public string duration;
         }
 
         [Serializable]
@@ -59,6 +63,7 @@ namespace Ceresta
         public TMP_Text speedText;
         public TMP_Text hpText;
         public TMP_Text playersText;
+        public PlayerController playerController;
 
         // Start is called before the first frame update
         void Start()
@@ -132,6 +137,10 @@ namespace Ceresta
                     var item = itemObject.GetComponent<ItemInGame>();
                     var sp = Resources.Load<Sprite>($"Items/{itemData.item_id}");
                     item.image.sprite = sp;
+                    item.button.onClick.AddListener(() =>
+                    {
+                        OnItemClicked(itemData);
+                    });
                 }
             }
             else
@@ -199,5 +208,14 @@ namespace Ceresta
         {
             playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
         }
+
+        public void OnItemClicked(ItemData item)
+        {
+            
+            playerController.OnUseItem(item);
+            
+        }
+
+        
     }
 }
