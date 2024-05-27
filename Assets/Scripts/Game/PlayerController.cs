@@ -13,7 +13,6 @@ namespace Ceresta
     {
         class UseItemRequest
         {
-            public int item_id;
         }
 
         class UseItemResponse
@@ -255,24 +254,21 @@ namespace Ceresta
             return new Vector2(xCenter, yCenter);
         }
 
-        public void OnUseItem(GameController.ItemData item)
+        public void OnUseItem(GameController.ItemData itemData, ItemInGame item)
         {
-            if (item.function == 1)
+            if (itemData.function == 1)
             {
-                hitPoint += int.Parse(item.hp);
+                hitPoint += (int)float.Parse(itemData.hp);
             }
-            else if (item.function == 2)
+            else if (itemData.function == 2)
             {
                 oldSpeed = speed;
-                speed = float.Parse(item.sp);
-                itemDuration = float.Parse(item.duration);
+                speed = float.Parse(itemData.sp);
+                itemDuration = float.Parse(itemData.duration);
                 usingSpeedItem = true;
             }
-            var body = new UseItemRequest
-            {
-                item_id = item.item_id,
-            };
-            StartCoroutine(WebRequestHandler.Post<UseItemResponse>("/game/use_item/", body, OnUseItemSuccess));
+            item.qtyText.text = $"{itemData.quantity - 1}";
+            StartCoroutine(WebRequestHandler.Post<UseItemResponse>($"/game/use_item/?item_id={itemData.item_id}", "", OnUseItemSuccess));
         }
 
         private void OnUseItemSuccess(UseItemResponse res)
