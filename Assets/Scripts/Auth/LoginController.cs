@@ -128,7 +128,7 @@ namespace Ceresta
             PlayerPrefs.SetString("Username", res.name);
             PlayerPrefs.SetInt("Score", res.score);
             if (string.IsNullOrEmpty(res.job))
-                PlayerPrefs.SetString("Job", "doctor");
+                PlayerPrefs.SetString("Job", "guest");
             else
                 PlayerPrefs.SetString("Job", res.job);
             PlayerPrefs.SetString("UserType", "user");
@@ -149,7 +149,7 @@ namespace Ceresta
             PlayerPrefs.SetString("Username", res.name);
             PlayerPrefs.SetInt("Score", res.score);
             if (string.IsNullOrEmpty(res.job))
-                PlayerPrefs.SetString("Job", "doctor");
+                PlayerPrefs.SetString("Job", "guest");
             else
                 PlayerPrefs.SetString("Job", res.job);
             PlayerPrefs.SetString("UserType", "user");
@@ -211,7 +211,7 @@ namespace Ceresta
             PlayerPrefs.SetInt("Gold", 0);
             PlayerPrefs.SetString("Username", res.username);
             PlayerPrefs.SetInt("Score", 0);
-            PlayerPrefs.SetString("Job", "doctor");
+            PlayerPrefs.SetString("Job", "guest");
             PlayerPrefs.SetString("UserType", "guest");
 
             SceneManager.LoadScene("MainUI");

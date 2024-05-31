@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -18,6 +19,7 @@ namespace Ceresta
         class ShopResponse
         {
             public string message;
+            public int gold;
         }
 
         public GameObject loadingSpinner;
@@ -25,6 +27,9 @@ namespace Ceresta
         public Image image;
         public SalesController salesController;
         public InventoryController inventoryController;
+        public TMP_Text goldText;
+
+
         private int itemId;
         private int qty;
         private bool owned;
@@ -91,12 +96,16 @@ namespace Ceresta
         private void OnBuySuccess(ShopResponse res)
         {
             salesController.RefreshItems();
+            PlayerPrefs.SetInt("Gold", res.gold);
+            goldText.text = res.gold.ToString();
             gameObject.SetActive(false);
         }
 
         private void OnSellSuccess(ShopResponse res)
         {
             inventoryController.RefreshItems();
+            PlayerPrefs.SetInt("Gold", res.gold);
+            goldText.text = res.gold.ToString();
             gameObject.SetActive(false);
         }
     }

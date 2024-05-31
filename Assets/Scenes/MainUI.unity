@@ -15320,6 +15320,7 @@ MonoBehaviour:
   image: {fileID: 143671114}
   salesController: {fileID: 368934839}
   inventoryController: {fileID: 1402411270}
+  goldText: {fileID: 1194519486}
 --- !u!1 &1431871712
 GameObject:
   m_ObjectHideFlags: 0
