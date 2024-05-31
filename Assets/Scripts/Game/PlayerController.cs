@@ -100,16 +100,16 @@ namespace Ceresta
             {
                 MoveWithKeyboard();
             }
-            if (Input.GetMouseButtonDown(0))
-            {
-                var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                var distance = Vector2.Distance(transform.position, pos);
-                if (distance < this.distance)
-                {
-                    ExplosionForce ef = GameObject.FindObjectOfType<ExplosionForce>();
-                    ef.DoExplosion(pos);
-                }
-            }
+            // if (Input.GetMouseButtonDown(0))
+            // {
+            //     var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //     var distance = Vector2.Distance(transform.position, pos);
+            //     if (distance < this.distance)
+            //     {
+            //         ExplosionForce ef = GameObject.FindObjectOfType<ExplosionForce>();
+            //         ef.DoExplosion(pos);
+            //     }
+            // }
             if (paused)
             {
                 Debug.Log("Paused for " + timer);
