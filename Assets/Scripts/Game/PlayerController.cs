@@ -263,11 +263,24 @@ namespace Ceresta
             else if (itemData.function == 2)
             {
                 oldSpeed = speed;
-                speed = float.Parse(itemData.sp);
+                if (itemData.sp.StartsWith("*"))
+                {
+                    speed *= float.Parse(itemData.sp[1..]);
+                } else {
+                    speed += float.Parse(itemData.sp[1..]);
+                }
                 itemDuration = float.Parse(itemData.duration);
                 usingSpeedItem = true;
             }
-            item.qtyText.text = $"{itemData.quantity - 1}";
+            if (itemData.quantity == 1)
+            {
+                GameObject.Destroy(item.gameObject);
+            }
+            else
+            {
+                item.qtyText.text = $"{itemData.quantity - 1}";
+            }
+
             StartCoroutine(WebRequestHandler.Post<UseItemResponse>($"/game/use_item/?item_id={itemData.item_id}", "", OnUseItemSuccess));
         }
 
