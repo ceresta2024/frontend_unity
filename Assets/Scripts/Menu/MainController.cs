@@ -38,6 +38,7 @@ namespace Ceresta
         public GameObject loadingSpinner;
 
         [Header("User info")]
+        public TMP_Text usernameText;
         public TMP_Text goldText;
         public TMP_Text scoreText;
 
@@ -53,6 +54,7 @@ namespace Ceresta
 
         void Awake()
         {
+            usernameText.text = PlayerPrefs.GetString("Username");
             goldText.text = PlayerPrefs.GetInt("Gold").ToString();
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();
 
