@@ -6698,7 +6698,6 @@ GameObject:
   - component: {fileID: 621656700}
   - component: {fileID: 621656699}
   - component: {fileID: 621656698}
-  - component: {fileID: 621656701}
   - component: {fileID: 621656702}
   m_Layer: 5
   m_Name: RoomPage
@@ -6792,19 +6791,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621656695}
   m_CullTransparentMesh: 1
---- !u!114 &621656701
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621656695}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a2e89e52555b2c4fb7b266e387ea8ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Text: {fileID: 1653976237}
 --- !u!114 &621656702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6817,7 +6803,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af0c62e5510fde34480c22c8b4eaf459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timer: {fileID: 621656701}
+  startButton: {fileID: 26824406}
   lobbyPage: {fileID: 1866457356}
   roomPage: {fileID: 621656695}
   playerListContent: {fileID: 1391878664}

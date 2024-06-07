@@ -177,6 +177,10 @@ namespace Ceresta
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
             if (collision.gameObject.CompareTag("TunnelEntrance"))
             {
                 var exitIdx = Random.Range(0, tunnelExit.pathCount);

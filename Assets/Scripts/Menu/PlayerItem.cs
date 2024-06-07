@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Ceresta
 {
-    public class Player : MonoBehaviour
+    public class PlayerItem : MonoBehaviour
     {
         public TMP_Text userId;
         public TMP_Text score;

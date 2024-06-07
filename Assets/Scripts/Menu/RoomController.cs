@@ -4,12 +4,18 @@ using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 namespace Ceresta
 {
     public class RoomController : MonoBehaviourPunCallbacks
     {
-        public CountdownTimer timer;
+        class AddUserResponse
+        {
+
+        }
+
+        public Button startButton;
 
         [Header("Pages")]
         public GameObject lobbyPage;
@@ -18,7 +24,7 @@ namespace Ceresta
         [Header("Player List")]
         public GameObject playerListContent;
         public TMP_Text totalPlayers;
-        public Dictionary<string, Player> players;
+        public Dictionary<string, PlayerItem> players;
 
         [Header("Spinner")]
         public GameObject loadingSpinner;
@@ -26,17 +32,19 @@ namespace Ceresta
         public override void OnJoinedRoom()
         {
             SetLoading(false);
-            timer.enabled = true;
+            startButton.gameObject.SetActive(CheckPlayersReady());
             totalPlayers.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / 20";
             // CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
 
+            StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
+
             playerListContent.transform.ClearChildren();
-            players = new Dictionary<string, Player>();
+            players = new Dictionary<string, PlayerItem>();
             foreach (var p in PhotonNetwork.PlayerList)
             {
                 var prefab = Resources.Load<GameObject>("PlayerListItem");
                 var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
-                var player = playerObject.GetComponent<Player>();
+                var player = playerObject.GetComponent<PlayerItem>();
                 if (p.CustomProperties.TryGetValue("Job", out object job) && p.CustomProperties.TryGetValue("Score", out object score))
                 {
                     player.Initialize(p.NickName, (string)job, (int)score);
@@ -53,13 +61,13 @@ namespace Ceresta
         public void OnBackToLobbyClicked()
         {
             SetLoading(true);
+            StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
             PhotonNetwork.LeaveRoom();
         }
 
         public override void OnLeftRoom()
         {
             // CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
-            timer.enabled = false;
             lobbyPage.SetActive(true);
             roomPage.SetActive(false);
             SetLoading(false);
@@ -71,7 +79,7 @@ namespace Ceresta
 
             var prefab = Resources.Load<GameObject>("PlayerListItem");
             var playerObject = GameObject.Instantiate(prefab, playerListContent.transform);
-            var player = playerObject.GetComponent<Player>();
+            var player = playerObject.GetComponent<PlayerItem>();
 
             if (newPlayer.CustomProperties.TryGetValue("Job", out object job) && newPlayer.CustomProperties.TryGetValue("Score", out object score))
             {
@@ -90,7 +98,10 @@ namespace Ceresta
 
         public void OnStartClicked()
         {
-            StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+
+            PhotonNetwork.LoadLevel("GameScene");
         }
 
         private void SetLoading(bool loading)
@@ -105,24 +116,40 @@ namespace Ceresta
 
         private IEnumerator AddUserToServer(string roomName)
         {
-            var accessToken = PlayerPrefs.GetString("AccessToken", "");
-            var url = $"{CerestaGame.baseUrl}/game/add_user/?room_id={roomName}";
-            var request = UnityWebRequest.Post(url, "", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+            return WebRequestHandler.Post<AddUserResponse>($"/game/add_user/?room_id={roomName}", "", OnAddUserSuccess);
+        }
 
-            yield return request.SendWebRequest();
+        private void OnAddUserSuccess(AddUserResponse res)
+        {
 
-            if (request.result == UnityWebRequest.Result.Success)
+        }
+
+        private IEnumerator RemoveUserFromServer(string roomName)
+        {
+            return WebRequestHandler.Post<AddUserResponse>($"/game/remove_user/?room_id={roomName}", "", OnRemoveUserSuccess);
+        }
+
+        private void OnRemoveUserSuccess(AddUserResponse res)
+        {
+
+        }
+
+        public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+        {
+            if (PhotonNetwork.LocalPlayer.ActorNumber == newMasterClient.ActorNumber)
             {
-                var responseText = request.downloadHandler.text;
-                Debug.Log(responseText);
+                startButton.gameObject.SetActive(CheckPlayersReady());
+            }
+        }
 
-                PhotonNetwork.LoadLevel("GameScene");
-            }
-            else
+        private bool CheckPlayersReady()
+        {
+            if (!PhotonNetwork.IsMasterClient)
             {
-                Debug.Log("Error: " + request.downloadHandler.text);
+                return false;
             }
+
+            return true;
         }
     }
 }

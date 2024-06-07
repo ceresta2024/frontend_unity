@@ -54,6 +54,8 @@ namespace Ceresta
 
         void Awake()
         {
+            PhotonNetwork.AutomaticallySyncScene = true;
+            
             usernameText.text = PlayerPrefs.GetString("Username");
             goldText.text = PlayerPrefs.GetInt("Gold").ToString();
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();

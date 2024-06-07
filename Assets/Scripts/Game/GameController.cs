@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
@@ -60,6 +61,8 @@ namespace Ceresta
         private float damping;
         private Vector3 vel = Vector3.zero;
 
+        private GameObject map;
+
         public TMP_Text speedText;
         public TMP_Text hpText;
         public TMP_Text playersText;
@@ -69,7 +72,26 @@ namespace Ceresta
         void Start()
         {
             mainCamera = Camera.main;
+            if (PhotonNetwork.IsMasterClient && !CountdownTimer.TryGetStartTime(out int startTimestamp))
+            {
+                CountdownTimer.SetStartTime();
+            }
+
             Initialize();
+        }
+
+        public override void OnEnable()
+        {
+            base.OnEnable();
+
+            CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+
+            CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
         }
 
         // Update is called once per frame
@@ -101,9 +123,7 @@ namespace Ceresta
             if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Map", out object mapId))
             {
                 var mapPrefab = Resources.Load<GameObject>($"Maps/{(int)mapId}");
-                var mapObject = GameObject.Instantiate(mapPrefab, position, rotation);
-                var startTransform = mapObject.transform.Find("Start");
-                player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
+                map = GameObject.Instantiate(mapPrefab, position, rotation);
             }
             playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
 
@@ -194,6 +214,20 @@ namespace Ceresta
             playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
         }
 
+        public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                return;
+            }
+
+            // if there was no countdown yet, the master client (this one) waits until everyone loaded the level and sets a timer start
+            if (CountdownTimer.TryGetStartTime(out int startTimestamp))
+            {
+                CountdownTimer.SetStartTime();
+            }
+        }
+
         public void OnItemClicked(ItemData itemData, ItemInGame item)
         {
 
@@ -201,6 +235,11 @@ namespace Ceresta
 
         }
 
-
+        private void OnCountdownTimerIsExpired()
+        {
+            Debug.Log("StartGame!");
+            var startTransform = map.transform.Find("Start");
+            player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
+        }
     }
 }

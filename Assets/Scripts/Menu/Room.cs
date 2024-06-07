@@ -27,10 +27,9 @@ namespace Ceresta
                 {"Score", PlayerPrefs.GetInt("Score")}
             };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProps);
-            
+
             var props = new Hashtable
             {
-                {CountdownTimer.CountdownStartTime, timestamp},
                 {"Map", mapId},
             };
             var roomOptions = new RoomOptions
