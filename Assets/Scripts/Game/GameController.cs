@@ -231,7 +231,7 @@ namespace Ceresta
         public void OnItemClicked(ItemData itemData, ItemInGame item)
         {
 
-            playerController.OnUseItem(itemData, item);
+            playerController.UseItem(itemData, item);
 
         }
 

@@ -164,11 +164,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myRigidbody: {fileID: 3354360375610289229}
+  myCollider: {fileID: 2668911300058775176}
   animator: {fileID: 1364976730100926592}
   photonView: {fileID: 2134996662076923227}
   speed: 1
-  speedInPit: 0.1
-  speedInThorn: 0.3
+  speedRateInPit: 0.3
+  speedRateInThorn: 0.5
   hitPoint: 100
   paused: 0
   distance: 1

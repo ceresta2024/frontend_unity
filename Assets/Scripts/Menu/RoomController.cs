@@ -34,7 +34,6 @@ namespace Ceresta
             SetLoading(false);
             startButton.gameObject.SetActive(CheckPlayersReady());
             totalPlayers.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / 20";
-            // CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
 
             StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
 
@@ -67,7 +66,6 @@ namespace Ceresta
 
         public override void OnLeftRoom()
         {
-            // CountdownTimer.OnCountdownTimerHasExpired -= OnCountdownTimerIsExpired;
             lobbyPage.SetActive(true);
             roomPage.SetActive(false);
             SetLoading(false);
@@ -109,29 +107,14 @@ namespace Ceresta
             loadingSpinner.SetActive(loading);
         }
 
-        private void OnCountdownTimerIsExpired()
-        {
-            StartCoroutine(AddUserToServer(PhotonNetwork.CurrentRoom.Name));
-        }
-
         private IEnumerator AddUserToServer(string roomName)
         {
-            return WebRequestHandler.Post<AddUserResponse>($"/game/add_user/?room_id={roomName}", "", OnAddUserSuccess);
-        }
-
-        private void OnAddUserSuccess(AddUserResponse res)
-        {
-
+            return WebRequestHandler.Post<AddUserResponse>($"/game/add_user/?room_id={roomName}", "", null);
         }
 
         private IEnumerator RemoveUserFromServer(string roomName)
         {
-            return WebRequestHandler.Post<AddUserResponse>($"/game/remove_user/?room_id={roomName}", "", OnRemoveUserSuccess);
-        }
-
-        private void OnRemoveUserSuccess(AddUserResponse res)
-        {
-
+            return WebRequestHandler.Post<AddUserResponse>($"/game/remove_user/?room_id={roomName}", "", null);
         }
 
         public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)

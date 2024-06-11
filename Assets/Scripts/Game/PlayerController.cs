@@ -21,26 +21,24 @@ namespace Ceresta
         }
 
         public Rigidbody2D myRigidbody;
+        public CircleCollider2D myCollider;
         public Animator animator;
         public PhotonView photonView;
 
         public float speed = 1;
         private float oldSpeed = 0;
-        public float speedInPit = 0.1f;
-        public float speedInThorn = 0.3f;
+        public float speedRateInPit = 0.3f;
+        public float speedRateInThorn = 0.5f;
         public int hitPoint = 100;
         public bool paused = false;
 
         public float distance = 1f;
 
-        private bool usingSpeedItem = false;
         private float itemDuration = 0;
-        private float itemTimer = 0;
+        private bool isInPit = false;
+        private bool isInThorn = false;
 
         private PolygonCollider2D tunnelExit;
-
-        private float timer = 0.0f;
-        private Vector2 oldVelocity;
 
         private GameController gameController;
         private VisualEffect vfxRenderer;
@@ -56,32 +54,33 @@ namespace Ceresta
             if (photonView.IsMine)
             {
                 var jobName = PlayerPrefs.GetString("Job");
-                if (jobName.IsNullOrEmpty())
-                {
-                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/doctor/doctor");
-                }
-                else
-                {
-                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
-                }
+                animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{jobName}/{jobName}");
             }
-            else
+            else if (photonView.Owner.CustomProperties.TryGetValue("Job", out object job))
             {
-                if (photonView.Owner.CustomProperties.TryGetValue("Job", out object job))
-                {
-                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{(string)job}/{(string)job}");
-                }
-                else
-                {
-                    animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/doctor/doctor");
-                }
+                animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{(string)job}/{(string)job}");
             }
         }
 
         void Update()
         {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
             gameController.speedText.text = $"Speed: {myRigidbody.velocity.magnitude}";
             gameController.hpText.text = $"HP: {hitPoint}";
+            Debug.Log("In pit: " + isInPit);
+            Debug.Log("In thorn: " + isInThorn);
+            if (myRigidbody.velocity.magnitude > 0)
+            {
+                animator.Play("Walk");
+                myRigidbody.SetRotation(Mathf.Atan2(myRigidbody.velocity.y, myRigidbody.velocity.x) * Mathf.Rad2Deg - 90);
+            }
+            else
+            {
+                animator.Play("Idle");
+            }
         }
 
         // Update is called once per frame
@@ -92,11 +91,17 @@ namespace Ceresta
                 return;
             }
 
-            if (Application.platform == RuntimePlatform.Android)
+            if (paused)
+            {
+                myRigidbody.velocity = Vector2.zero;
+                return;
+            }
+
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
             {
                 MoveWithGyroscope();
             }
-            else if (Application.platform == RuntimePlatform.WindowsEditor)
+            else if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 MoveWithKeyboard();
             }
@@ -110,69 +115,48 @@ namespace Ceresta
             //         ef.DoExplosion(pos);
             //     }
             // }
-            if (paused)
-            {
-                Debug.Log("Paused for " + timer);
-                myRigidbody.velocity = Vector2.zero;
-                timer += Time.deltaTime;
-                if (timer > 5)
-                {
-                    timer = 0;
-                    paused = false;
-                    myRigidbody.velocity = oldVelocity;
-                    Debug.Log("Resumed, velocity: " + myRigidbody.velocity);
-                }
-            }
-            if (usingSpeedItem)
-            {
-                Debug.Log("Used item for " + itemTimer);
-                itemTimer += Time.deltaTime;
-                if (itemTimer > itemDuration)
-                {
-                    itemTimer = 0;
-                    usingSpeedItem = false;
-                    speed = oldSpeed;
-                }
-            }
-            if (myRigidbody.velocity.magnitude > 0)
-            {
-                animator.Play("Walk");
-            }
-            else
-            {
-                animator.Play("Idle");
-            }
-            myRigidbody.SetRotation(Mathf.Atan2(myRigidbody.velocity.y, myRigidbody.velocity.x) * Mathf.Rad2Deg - 90);
             // vfxRenderer.SetVector3("ColliderPos", transform.position);
         }
 
         private void MoveWithKeyboard()
         {
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                myRigidbody.velocity = Vector2.up * speed;
-            }
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                myRigidbody.velocity = Vector2.left * speed;
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                myRigidbody.velocity = Vector2.down * speed;
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                myRigidbody.velocity = Vector2.right * speed;
-            }
+            var xInput = Input.GetAxis("Horizontal");
+            var yInput = Input.GetAxis("Vertical");
+
+            SetVelocity(xInput, yInput);
         }
 
         private void MoveWithGyroscope()
         {
-            // Get the acceleration along the X-axis
             float xAcceleration = Input.acceleration.x;
             float yAcceleration = Input.acceleration.y;
-            float d = Mathf.Sqrt(Mathf.Pow(xAcceleration, 2) + Mathf.Pow(yAcceleration, 2));
-            myRigidbody.velocity = new Vector2(xAcceleration / d, yAcceleration / d) * speed;
+            SetVelocity(xAcceleration, yAcceleration);
+        }
+
+        private void SetVelocity(float xInput, float yInput)
+        {
+            var inputVector = new Vector2(xInput, yInput);
+            var length = inputVector.magnitude;
+
+            if (length > 0)
+            {
+                if (isInPit)
+                {
+                    myRigidbody.velocity = new Vector2(xInput / length * speed * speedRateInPit, yInput / length * speed * speedRateInPit);
+                }
+                else if (isInThorn)
+                {
+                    myRigidbody.velocity = new Vector2(xInput / length * speed * speedRateInThorn, yInput / length * speed * speedRateInThorn);
+                }
+                else
+                {
+                    myRigidbody.velocity = new Vector2(xInput / length * speed, yInput / length * speed);
+                }
+            }
+            else
+            {
+                myRigidbody.velocity = Vector2.zero;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
@@ -188,43 +172,40 @@ namespace Ceresta
                 var centerPos = GetCenter(polygon);
                 transform.position = centerPos;
             }
-            else if (collision.gameObject.CompareTag("Pit"))
-            {
-                Debug.Log("Player entered in pit");
-                oldVelocity = myRigidbody.velocity;
-                paused = true;
-                hitPoint -= 5;
-            }
-            else if (collision.gameObject.CompareTag("Thorn"))
-            {
-                Debug.Log("Player entered in thorn");
-                hitPoint -= 3;
-            }
             else if (collision.gameObject.CompareTag("Goal"))
             {
                 Debug.Log("you reached to the goal");
-                myRigidbody.velocity = Vector2.zero;
+                paused = true;
                 gameController.EndOfGame();
             }
         }
 
-        private void OnTriggerStay2D(Collider2D collision)
+        void OnTriggerStay2D(Collider2D other)
         {
-            if (collision.gameObject.CompareTag("Pit"))
+            if (IsInside(other) && other.gameObject.CompareTag("Pit"))
             {
-                speed = speedInPit;
+                if (!isInPit)
+                {
+                    paused = true;
+                    hitPoint -= 5;
+                    StartCoroutine(ResumeInSeconds(5));
+                }
+                Debug.Log("In pit");
+                isInPit = true;
             }
-            else if (collision.gameObject.CompareTag("Thorn"))
+            else if (IsInside(other) && other.gameObject.CompareTag("Thorn"))
             {
-                speed = speedInThorn;
+                if (!isInThorn)
+                {
+                    hitPoint -= 3;
+                }
+                Debug.Log("In thorn");
+                isInThorn = true;
             }
-        }
-
-        private void OnTriggerExit2D(Collider2D collision)
-        {
-            if (collision.gameObject.CompareTag("Pit") || collision.gameObject.CompareTag("Thorn"))
+            else
             {
-                speed = 1;
+                isInPit = false;
+                isInThorn = false;
             }
         }
 
@@ -258,7 +239,7 @@ namespace Ceresta
             return new Vector2(xCenter, yCenter);
         }
 
-        public void OnUseItem(GameController.ItemData itemData, ItemInGame item)
+        public void UseItem(GameController.ItemData itemData, ItemInGame item)
         {
             if (itemData.function == 1)
             {
@@ -270,11 +251,13 @@ namespace Ceresta
                 if (itemData.sp.StartsWith("*"))
                 {
                     speed *= float.Parse(itemData.sp[1..]);
-                } else {
+                }
+                else
+                {
                     speed += float.Parse(itemData.sp[1..]);
                 }
                 itemDuration = float.Parse(itemData.duration);
-                usingSpeedItem = true;
+                StartCoroutine(ResetSpeedAfterUsage(itemDuration));
             }
             if (itemData.quantity == 1)
             {
@@ -285,12 +268,31 @@ namespace Ceresta
                 item.qtyText.text = $"{itemData.quantity - 1}";
             }
 
-            StartCoroutine(WebRequestHandler.Post<UseItemResponse>($"/game/use_item/?item_id={itemData.item_id}", "", OnUseItemSuccess));
+            StartCoroutine(WebRequestHandler.Post<UseItemResponse>($"/game/use_item/?item_id={itemData.item_id}", "", null));
         }
 
-        private void OnUseItemSuccess(UseItemResponse res)
+        private IEnumerator ResumeInSeconds(float seconds)
         {
+            yield return new WaitForSeconds(seconds);
+            paused = false;
+        }
 
+        private IEnumerator ResetSpeedAfterUsage(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            speed = oldSpeed;
+        }
+
+        private bool IsInside(Collider2D other)
+        {
+            if (other.OverlapPoint(myCollider.bounds.center))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
