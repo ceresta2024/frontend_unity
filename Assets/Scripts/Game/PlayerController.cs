@@ -72,9 +72,16 @@ namespace Ceresta
             gameController.hpText.text = $"HP: {hitPoint}";
             Debug.Log("In pit: " + isInPit);
             Debug.Log("In thorn: " + isInThorn);
-            if (myRigidbody.velocity.magnitude > 0)
+            if (myRigidbody.velocity.magnitude > 0 || paused)
             {
-                animator.Play("Walk");
+                if (paused)
+                {
+                    animator.Rebind();
+                }
+                else
+                {
+                    animator.Play("Walk");
+                }
                 myRigidbody.SetRotation(Mathf.Atan2(myRigidbody.velocity.y, myRigidbody.velocity.x) * Mathf.Rad2Deg - 90);
             }
             else
@@ -171,6 +178,8 @@ namespace Ceresta
                 var polygon = tunnelExit.GetPath(exitIdx);
                 var centerPos = GetCenter(polygon);
                 transform.position = centerPos;
+                Invoke("LoadExitEffect", 0);
+                Invoke("UnloadExitEffect", 5);
             }
             else if (collision.gameObject.CompareTag("Goal"))
             {
@@ -178,6 +187,66 @@ namespace Ceresta
                 paused = true;
                 gameController.EndOfGame();
             }
+        }
+
+        void LoadStarEffect()
+        {
+            GameObject newObject = new GameObject("StarEffect");
+            SpriteRenderer renderer = newObject.AddComponent<SpriteRenderer>();
+            Animator animator = newObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Effects/pit/star1");
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            renderer.sprite = Resources.Load<Sprite>($"Effects/pit/star1");
+            newObject.transform.localScale = new Vector3(0.2f, 0.2f);
+            newObject.transform.position = transform.position;
+        }
+
+        void UnloadStarEffect()
+        {
+            GameObject rsObj = GameObject.Find("StarEffect");
+            Destroy(rsObj);
+        }
+        void LoadBloodEffect()
+        {
+            GameObject newObject = new GameObject("BloodEffect");
+            SpriteRenderer renderer = newObject.AddComponent<SpriteRenderer>();
+            Animator animator = newObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Effects/thorn/blood");
+            animator.Play("BloodEffect");
+            //animator.cullingMode = AnimatorCullingMode.CullCompletely;
+            renderer.sprite = Resources.Load<Sprite>($"Effects/thorn/1");
+            newObject.transform.localScale = new Vector3(0.2f, 0.2f);
+            newObject.transform.position = transform.position;
+        }
+
+        void UnloadBloodEffect()
+        {
+            GameObject rsObj = GameObject.Find("BloodEffect");
+            Destroy(rsObj);
+            if (isInThorn)
+            {
+                Invoke("LoadBloodEffect", 0);
+                Invoke("UnloadBloodEffect", 1);
+            }
+        }
+
+        void LoadExitEffect()
+        {
+            GameObject newObject = new GameObject("ExitEffect");
+            SpriteRenderer renderer = newObject.AddComponent<SpriteRenderer>();
+            Animator animator = newObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Effects/exit");
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            renderer.sprite = Resources.Load<Sprite>($"Effects/1");
+            renderer.drawMode = SpriteDrawMode.Sliced;
+            renderer.size = new Vector2(1, 1);
+            newObject.transform.position = transform.position;
+        }
+
+        void UnloadExitEffect()
+        {
+            GameObject rsObj = GameObject.Find("ExitEffect");
+            Destroy(rsObj);
         }
 
         void OnTriggerStay2D(Collider2D other)
@@ -188,6 +257,8 @@ namespace Ceresta
                 {
                     paused = true;
                     hitPoint -= 5;
+                    Invoke("LoadStarEffect", 0);
+                    Invoke("UnloadStarEffect", 5);
                     StartCoroutine(ResumeInSeconds(5));
                 }
                 Debug.Log("In pit");
@@ -198,6 +269,8 @@ namespace Ceresta
                 if (!isInThorn)
                 {
                     hitPoint -= 3;
+                    Invoke("LoadBloodEffect", 0);
+                    Invoke("UnloadBloodEffect", 1);
                 }
                 Debug.Log("In thorn");
                 isInThorn = true;
