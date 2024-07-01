@@ -101,7 +101,33 @@ namespace Ceresta
             {
                 Vector3 targetPosition = player.transform.position + offset;
                 targetPosition.z = mainCamera.transform.position.z;
-
+                Vector2 screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
+                Vector2 screenOrigo = Camera.main.ScreenToWorldPoint(Vector2.zero);
+                var startTransform = map.transform.Find("Start");
+                var endTransform = map.transform.Find("Goal");
+                float width = screenBounds.x - screenOrigo.x;
+                float height = screenBounds.y - screenOrigo.y;
+                float diffXFromStart = player.transform.position.x + (float)16.1;
+                float diffYFromStart = player.transform.position.y - startTransform.position.y;
+                float diffXFromGoal = (float)16.1 - player.transform.position.x;
+                float diffYFromGoal = endTransform.position.y - player.transform.position.y;
+                // this.speedText.text = $"Speed: {player.transform.position.x} --- {diffXFromStart} --- {width} --- {startTransform.position.y}";
+                if (diffXFromStart < width)
+                {
+                    targetPosition.x = targetPosition.x + (width / 2 - diffXFromStart);
+                }
+                if (diffYFromStart < height * 0.8)
+                {
+                    targetPosition.y = targetPosition.y + (height / 2 - diffYFromStart - (float)0.99);
+                }
+                if (diffXFromGoal < width)
+                {
+                    targetPosition.x = targetPosition.x - (width / 2 - diffXFromGoal);
+                }
+                if (diffYFromGoal < height * 0.8)
+                {
+                    targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal - (float)0.99);
+                }
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetPosition, ref vel, damping);
             }
         }
