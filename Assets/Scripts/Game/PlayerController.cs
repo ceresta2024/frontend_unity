@@ -68,8 +68,10 @@ namespace Ceresta
             {
                 return;
             }
-            gameController.speedText.text = $"Speed: {myRigidbody.velocity.magnitude}";
-            gameController.hpText.text = $"HP: {hitPoint}";
+            int speed = (int)myRigidbody.velocity.magnitude * 100;
+            gameController.speedText.text = $"{speed}/100";
+            gameController.hpText.text = $"{hitPoint}/100";
+            Debug.Log("Speed: " + myRigidbody.velocity.magnitude);
             Debug.Log("In pit: " + isInPit);
             Debug.Log("In thorn: " + isInThorn);
             if (myRigidbody.velocity.magnitude > 0 || paused)

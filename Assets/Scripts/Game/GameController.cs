@@ -7,6 +7,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -54,6 +55,7 @@ namespace Ceresta
         public GameObject rewardBox;
         public TMP_Text scoreText;
         public Image rewardImage;
+        public GameObject confirmModal;
 
         private GameObject player;
         private Camera mainCamera;
@@ -134,7 +136,17 @@ namespace Ceresta
 
         public void OnBackButtonClicked()
         {
+            confirmModal.SetActive(true);
+        }
+
+        public void OnYesButtonClicked()
+        {
             StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
+        }
+
+        public void OnNoButtonClicked()
+        {
+            confirmModal.SetActive(false);
         }
 
         public override void OnLeftRoom()
@@ -151,7 +163,7 @@ namespace Ceresta
                 var mapPrefab = Resources.Load<GameObject>($"Maps/{(int)mapId}");
                 map = GameObject.Instantiate(mapPrefab, position, rotation);
             }
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
 
             StartCoroutine(WebRequestHandler.Get<ItemsResponse>("/shop/get_inventory_list/", OnGetInventorySuccess));
         }
@@ -232,12 +244,12 @@ namespace Ceresta
 
         public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
         {
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
         }
 
         public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
         {
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
         }
 
         public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
