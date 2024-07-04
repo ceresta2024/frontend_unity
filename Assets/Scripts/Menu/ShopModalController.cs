@@ -23,6 +23,8 @@ namespace Ceresta
         }
 
         public GameObject loadingSpinner;
+        public TMP_Text itemName;
+        public TMP_Text price;
         public QtyInput qtyInput;
         public Image image;
         public SalesController salesController;
@@ -34,9 +36,11 @@ namespace Ceresta
         private int qty;
         private bool owned;
 
-        public void ShowToBuy(int itemId, int maxQty)
+        public void ShowToBuy(int itemId, string itemName, int price, int maxQty)
         {
             this.itemId = itemId;
+            this.itemName.text = itemName;
+            this.price.text = price.ToString();
             var sp = Resources.Load<Sprite>($"Items/{itemId}");
             image.sprite = sp;
             owned = false;

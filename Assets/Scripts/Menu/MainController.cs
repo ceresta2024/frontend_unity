@@ -55,7 +55,7 @@ namespace Ceresta
         void Awake()
         {
             PhotonNetwork.AutomaticallySyncScene = true;
-            
+
             usernameText.text = PlayerPrefs.GetString("Username");
             goldText.text = PlayerPrefs.GetInt("Gold").ToString();
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();
@@ -126,6 +126,9 @@ namespace Ceresta
         {
             foreach (var roomInfo in roomList)
             {
+                int count = roomInfo.PlayerCount / 2;
+                var sp = Resources.Load<Sprite>($"Rooms/room{count}");
+                if (rooms[roomInfo.Name].profile) rooms[roomInfo.Name].profile.GetComponent<Image>().sprite = sp;
                 if (rooms[roomInfo.Name].infoText) rooms[roomInfo.Name].infoText.text = $"{roomInfo.PlayerCount} / 20";
             }
         }
