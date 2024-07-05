@@ -51,11 +51,14 @@ namespace Ceresta
         }
 
         public Weather weather;
+        public GameObject itemsListWrapper;
         public GameObject itemsListContent;
         public GameObject rewardBox;
         public TMP_Text scoreText;
         public Image rewardImage;
         public GameObject confirmModal;
+        public GameObject expandButton;
+        public GameObject collapseButton;
 
         private GameObject player;
         private Camera mainCamera;
@@ -149,6 +152,20 @@ namespace Ceresta
             confirmModal.SetActive(false);
         }
 
+        public void OnItemCollapseButton()
+        {
+            expandButton.SetActive(true);
+            collapseButton.SetActive(false);
+            itemsListWrapper.SetActive(false);
+        }
+
+        public void OnItemExpandButton()
+        {
+            expandButton.SetActive(false);
+            collapseButton.SetActive(true);
+            itemsListWrapper.SetActive(true);
+        }
+
         public override void OnLeftRoom()
         {
             SceneManager.LoadScene("MainUI");
@@ -166,11 +183,24 @@ namespace Ceresta
             playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
 
             StartCoroutine(WebRequestHandler.Get<ItemsResponse>("/shop/get_inventory_list/", OnGetInventorySuccess));
+            // need to connect with photon
+            OnGetUseItemsSuccess();
         }
 
         public void EndOfGame()
         {
             StartCoroutine(GetReward(PhotonNetwork.CurrentRoom.Name));
+        }
+
+        private void OnGetUseItemsSuccess()
+        {
+            itemsListContent.transform.ClearChildren();
+            var prefab = Resources.Load<GameObject>("UseItem");
+            var itemObject = GameObject.Instantiate(prefab, itemsListContent.transform);
+
+            var useItem = itemObject.GetComponent<UseItem>();
+            useItem.image.sprite = Resources.Load<Sprite>($"Items/3");
+            useItem.qtyText.text = "1";
         }
 
         private void OnGetInventorySuccess(ItemsResponse res)
