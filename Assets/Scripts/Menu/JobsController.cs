@@ -60,6 +60,8 @@ namespace Ceresta
             selectedId = jobId;
             selectedName.text = jobName;
             selectedDescription.text = jobDescription;
+            selectedDescription.fontSize = 46;
+            selectedDescription.alignment = TextAlignmentOptions.TopLeft;
 
             itemListContent.transform.ClearChildren();
             foreach (var itemData in items)
@@ -104,6 +106,7 @@ namespace Ceresta
                 job.jobName = jobData.name;
                 job.description = jobData.description;
                 job.items = jobData.items;
+                job.nameTxt.text = jobData.name;
                 job.controller = this;
 
                 if (jobData.name == jobName)
