@@ -57,7 +57,7 @@ namespace Ceresta
             PhotonNetwork.AutomaticallySyncScene = true;
 
             usernameText.text = PlayerPrefs.GetString("Username");
-            goldText.text = PlayerPrefs.GetInt("Gold").ToString();
+            goldText.text = Common.FormatAmount(PlayerPrefs.GetInt("Gold"));
             scoreText.text = PlayerPrefs.GetInt("Score").ToString();
 
             rooms ??= new Dictionary<string, Room>();
