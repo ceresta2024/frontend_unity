@@ -18,6 +18,7 @@ namespace Ceresta
         public Button startButton;
 
         [Header("Pages")]
+        public GameObject startPage;
         public GameObject lobbyPage;
         public GameObject roomPage;
 
@@ -28,6 +29,12 @@ namespace Ceresta
 
         [Header("Spinner")]
         public GameObject loadingSpinner;
+        private void SetActivePage(string activePage)
+        {
+            startPage.SetActive(activePage.Equals(startPage.name));
+            lobbyPage.SetActive(activePage.Equals(lobbyPage.name));
+            roomPage.SetActive(activePage.Equals(roomPage.name));
+        }
 
         public override void OnJoinedRoom()
         {
@@ -62,6 +69,14 @@ namespace Ceresta
             SetLoading(true);
             StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
             PhotonNetwork.LeaveRoom();
+        }
+
+        public void OnBackToHomeClicked()
+        {
+            SetLoading(true);
+            StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.Disconnect();
         }
 
         public override void OnLeftRoom()

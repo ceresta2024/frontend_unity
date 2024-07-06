@@ -7,6 +7,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -50,10 +51,14 @@ namespace Ceresta
         }
 
         public Weather weather;
+        public GameObject itemsListWrapper;
         public GameObject itemsListContent;
         public GameObject rewardBox;
         public TMP_Text scoreText;
         public Image rewardImage;
+        public GameObject confirmModal;
+        public GameObject expandButton;
+        public GameObject collapseButton;
 
         private GameObject player;
         private Camera mainCamera;
@@ -134,7 +139,31 @@ namespace Ceresta
 
         public void OnBackButtonClicked()
         {
+            confirmModal.SetActive(true);
+        }
+
+        public void OnYesButtonClicked()
+        {
             StartCoroutine(RemoveUserFromServer(PhotonNetwork.CurrentRoom.Name));
+        }
+
+        public void OnNoButtonClicked()
+        {
+            confirmModal.SetActive(false);
+        }
+
+        public void OnItemCollapseButton()
+        {
+            expandButton.SetActive(true);
+            collapseButton.SetActive(false);
+            itemsListWrapper.SetActive(false);
+        }
+
+        public void OnItemExpandButton()
+        {
+            expandButton.SetActive(false);
+            collapseButton.SetActive(true);
+            itemsListWrapper.SetActive(true);
         }
 
         public override void OnLeftRoom()
@@ -151,14 +180,27 @@ namespace Ceresta
                 var mapPrefab = Resources.Load<GameObject>($"Maps/{(int)mapId}");
                 map = GameObject.Instantiate(mapPrefab, position, rotation);
             }
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
 
             StartCoroutine(WebRequestHandler.Get<ItemsResponse>("/shop/get_inventory_list/", OnGetInventorySuccess));
+            // need to connect with photon
+            OnGetUseItemsSuccess();
         }
 
         public void EndOfGame()
         {
             StartCoroutine(GetReward(PhotonNetwork.CurrentRoom.Name));
+        }
+
+        private void OnGetUseItemsSuccess()
+        {
+            itemsListContent.transform.ClearChildren();
+            var prefab = Resources.Load<GameObject>("UseItem");
+            var itemObject = GameObject.Instantiate(prefab, itemsListContent.transform);
+
+            var useItem = itemObject.GetComponent<UseItem>();
+            useItem.image.sprite = Resources.Load<Sprite>($"Items/3");
+            useItem.qtyText.text = "1";
         }
 
         private void OnGetInventorySuccess(ItemsResponse res)
@@ -232,12 +274,12 @@ namespace Ceresta
 
         public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
         {
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
         }
 
         public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
         {
-            playersText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 20";
+            playersText.text = $"{PhotonNetwork.CurrentRoom.PlayerCount}/20";
         }
 
         public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)

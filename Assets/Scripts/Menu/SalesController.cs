@@ -56,7 +56,7 @@ namespace Ceresta
 
                 item.button.onClick.AddListener(() =>
                 {
-                    modalController.ShowToBuy(itemData.item_id, itemData.quantity);
+                    modalController.ShowToBuy(itemData.item_id, itemData.name, itemData.price, itemData.quantity);
                 });
             }
         }

@@ -16,6 +16,7 @@ namespace Ceresta
         private int maxPlayers = 20;
 
         public TMP_Text infoText;
+        public GameObject profile;
         public Button button;
 
         public void OnClicked()
