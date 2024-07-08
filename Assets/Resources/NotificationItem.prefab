@@ -546,7 +546,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8013258426060333667}
   - component: {fileID: 527944306214467241}
-  - component: {fileID: 8317917539922284602}
+  - component: {fileID: 8055939124651852147}
   m_Layer: 5
   m_Name: NotificationItem
   m_TagString: Untagged
@@ -585,7 +585,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3694576834943683428}
   m_CullTransparentMesh: 1
---- !u!114 &8317917539922284602
+--- !u!114 &8055939124651852147
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -594,13 +594,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3694576834943683428}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 669dc0dbe4a089949bdb4839f09e7c29, type: 3}
+  m_Script: {fileID: 11500000, guid: cdf04b0934757344ebbb2dd3e2366a95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noti_name: {fileID: 731604484371836067}
-  noti_content: {fileID: 3247681420924803885}
-  noti_start_date: {fileID: 1735003077952375893}
-  end_date: {fileID: 0}
+  number: {fileID: 3247681420924803885}
+  username: {fileID: 731604484371836067}
+  score: {fileID: 1735003077952375893}
+  image: {fileID: 0}
 --- !u!1 &4623634122586745962
 GameObject:
   m_ObjectHideFlags: 0
