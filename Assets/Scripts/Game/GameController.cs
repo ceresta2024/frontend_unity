@@ -59,6 +59,7 @@ namespace Ceresta
         public GameObject confirmModal;
         public GameObject expandButton;
         public GameObject collapseButton;
+        public Canvas minimapCanvas;
 
         private GameObject player;
         private Camera mainCamera;
@@ -66,7 +67,7 @@ namespace Ceresta
         private float damping;
         private Vector3 vel = Vector3.zero;
 
-        private GameObject map;
+        public GameObject map;
 
         public TMP_Text speedText;
         public TMP_Text hpText;
@@ -108,14 +109,12 @@ namespace Ceresta
                 targetPosition.z = mainCamera.transform.position.z;
                 Vector2 screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
                 Vector2 screenOrigo = Camera.main.ScreenToWorldPoint(Vector2.zero);
-                var startTransform = map.transform.Find("Start");
-                var endTransform = map.transform.Find("Goal");
                 float width = screenBounds.x - screenOrigo.x;
                 float height = screenBounds.y - screenOrigo.y;
-                float diffXFromStart = player.transform.position.x + (float)16.1;
-                float diffYFromStart = player.transform.position.y - startTransform.position.y;
-                float diffXFromGoal = (float)16.1 - player.transform.position.x;
-                float diffYFromGoal = endTransform.position.y - player.transform.position.y;
+                float diffXFromStart = player.transform.position.x + 16.1f;
+                float diffYFromStart = player.transform.position.y + 34.99f;
+                float diffXFromGoal = 16.1f - player.transform.position.x;
+                float diffYFromGoal = 34.99f - player.transform.position.y;
                 // this.speedText.text = $"Speed: {player.transform.position.x} --- {diffXFromStart} --- {width} --- {startTransform.position.y}";
                 if (diffXFromStart < width)
                 {
@@ -123,7 +122,7 @@ namespace Ceresta
                 }
                 if (diffYFromStart < height * 0.8)
                 {
-                    targetPosition.y = targetPosition.y + (height / 2 - diffYFromStart - (float)0.99);
+                    targetPosition.y = targetPosition.y + (height / 2 - diffYFromStart);
                 }
                 if (diffXFromGoal < width)
                 {
@@ -131,7 +130,7 @@ namespace Ceresta
                 }
                 if (diffYFromGoal < height * 0.8)
                 {
-                    targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal - (float)0.99);
+                    targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal);
                 }
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetPosition, ref vel, damping);
             }

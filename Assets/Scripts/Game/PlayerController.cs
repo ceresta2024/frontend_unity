@@ -4,6 +4,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using UnityEngine.VFX;
 using WebSocketSharp;
 
@@ -37,11 +38,14 @@ namespace Ceresta
         private float itemDuration = 0;
         private bool isInPit = false;
         private bool isInThorn = false;
+        private float rateX;
+        private float rateY;
 
         private PolygonCollider2D tunnelExit;
 
         private GameController gameController;
         private VisualEffect vfxRenderer;
+        private RectTransform minimapPoint;
 
         void Start()
         {
@@ -60,10 +64,29 @@ namespace Ceresta
             {
                 animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>($"Characters/{(string)job}/{(string)job}");
             }
+
+            // create minimap position
+            float minimapWidth = gameController.minimapCanvas.GetComponent<RectTransform>().rect.width;
+            rateX = minimapWidth / 2 / 16.1f;
+            rateY = minimapWidth / 2 / 34.99f;
+
+            GameObject gameObject = new GameObject();
+            Image image = gameObject.AddComponent<Image>();
+            if (photonView.IsMine)
+                image.color = Color.red;
+            else
+                image.color = Color.blue;
+            minimapPoint = gameObject.GetComponent<RectTransform>();
+            minimapPoint.SetParent(gameController.minimapCanvas.transform);
+            minimapPoint.sizeDelta = new Vector2(10, 10);
+            minimapPoint.localScale = new Vector3(1, 1, 1);
+            minimapPoint.transform.localPosition = new Vector3(rateX * this.transform.position.x, rateY * this.transform.position.y, 0);
         }
 
         void Update()
         {
+            // update point
+            minimapPoint.transform.localPosition = new Vector3(rateX * this.transform.position.x, rateY * this.transform.position.y, 0);
             if (!photonView.IsMine)
             {
                 return;
@@ -71,9 +94,9 @@ namespace Ceresta
             int speed = (int)myRigidbody.velocity.magnitude * 100;
             gameController.speedText.text = $"{speed}/100";
             gameController.hpText.text = $"{hitPoint}/100";
-            Debug.Log("Speed: " + myRigidbody.velocity.magnitude);
-            Debug.Log("In pit: " + isInPit);
-            Debug.Log("In thorn: " + isInThorn);
+            //Debug.Log("Speed: " + myRigidbody.velocity.magnitude);
+            //Debug.Log("In pit: " + isInPit);
+            //Debug.Log("In thorn: " + isInThorn);
             if (myRigidbody.velocity.magnitude > 0 || paused)
             {
                 if (paused)
