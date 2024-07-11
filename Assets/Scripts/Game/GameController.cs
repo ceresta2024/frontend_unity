@@ -57,8 +57,10 @@ namespace Ceresta
         public TMP_Text scoreText;
         public Image rewardImage;
         public GameObject confirmModal;
+        public GameObject expandMiniButton;
         public GameObject expandButton;
         public GameObject collapseButton;
+        public GameObject minimapPanel;
         public Canvas minimapCanvas;
 
         private GameObject player;
@@ -163,6 +165,12 @@ namespace Ceresta
             expandButton.SetActive(false);
             collapseButton.SetActive(true);
             itemsListWrapper.SetActive(true);
+        }
+
+        public void OnExpandMinimapButton()
+        {
+            expandMiniButton.SetActive(false);
+            minimapPanel.SetActive(true);
         }
 
         public override void OnLeftRoom()
