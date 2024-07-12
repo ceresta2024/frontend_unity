@@ -61,6 +61,8 @@ namespace Ceresta
         public GameObject expandButton;
         public GameObject collapseButton;
         public GameObject minimapPanel;
+        public GameObject healthBar;
+        public GameObject speedBar;
         public Canvas minimapCanvas;
 
         private GameObject player;
@@ -74,7 +76,9 @@ namespace Ceresta
         public TMP_Text speedText;
         public TMP_Text hpText;
         public TMP_Text playersText;
+        public TMP_Text timeDownText;
         public PlayerController playerController;
+        private DateTime startTime;
 
         // Start is called before the first frame update
         void Start()
@@ -135,6 +139,14 @@ namespace Ceresta
                     targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal);
                 }
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetPosition, ref vel, damping);
+
+                // time down
+                var timeSpan = startTime.Subtract(DateTime.Now);
+                if (timeSpan.Ticks > 0)
+                {
+                    var timeRemaining = new DateTime(timeSpan.Ticks).ToString("mm:ss");
+                    timeDownText.text = timeRemaining;
+                }
             }
         }
 
@@ -315,6 +327,9 @@ namespace Ceresta
             Debug.Log("StartGame!");
             var startTransform = map.transform.Find("Start");
             player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
+
+            startTime = DateTime.Now;
+            startTime = startTime.AddMinutes(15);
 
             PutTargetPosToMinimap();
         }

@@ -91,9 +91,6 @@ namespace Ceresta
             {
                 return;
             }
-            int speed = (int)myRigidbody.velocity.magnitude * 100;
-            gameController.speedText.text = $"{speed}/100";
-            gameController.hpText.text = $"{hitPoint}/100";
             //Debug.Log("Speed: " + myRigidbody.velocity.magnitude);
             //Debug.Log("In pit: " + isInPit);
             //Debug.Log("In thorn: " + isInThorn);
@@ -175,20 +172,36 @@ namespace Ceresta
                 if (isInPit)
                 {
                     myRigidbody.velocity = new Vector2(xInput / length * speed * speedRateInPit, yInput / length * speed * speedRateInPit);
+                    UpdateProgress(100 - 5, hitPoint);
                 }
                 else if (isInThorn)
                 {
                     myRigidbody.velocity = new Vector2(xInput / length * speed * speedRateInThorn, yInput / length * speed * speedRateInThorn);
+                    UpdateProgress(100 - 3, hitPoint);
                 }
                 else
                 {
                     myRigidbody.velocity = new Vector2(xInput / length * speed, yInput / length * speed);
+                    UpdateProgress(100, hitPoint);
                 }
             }
             else
             {
                 myRigidbody.velocity = Vector2.zero;
             }
+        }
+
+        private void UpdateProgress(int speed, int hitPoint)
+        {
+            gameController.speedText.text = $"{speed}/100";
+            gameController.hpText.text = $"{hitPoint}/100";
+            float sBarSteps = 0.22f * speed;
+            float hBarSteps = 0.22f * hitPoint;
+            if (hBarSteps < 0) hBarSteps = 0;
+            var sSP = Resources.Load<Sprite>($"Speed/s{(int)sBarSteps}");
+            var hSP = Resources.Load<Sprite>($"Health/h{(int)hBarSteps}");
+            gameController.speedBar.GetComponent<Image>().sprite = sSP;
+            gameController.healthBar.GetComponent<Image>().sprite = hSP;
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
@@ -281,7 +294,7 @@ namespace Ceresta
                 if (!isInPit)
                 {
                     paused = true;
-                    hitPoint -= 5;
+                    hitPoint -= 15;
                     Invoke("LoadStarEffect", 0);
                     Invoke("UnloadStarEffect", 5);
                     StartCoroutine(ResumeInSeconds(5));
@@ -293,7 +306,7 @@ namespace Ceresta
             {
                 if (!isInThorn)
                 {
-                    hitPoint -= 3;
+                    hitPoint -= 10;
                     Invoke("LoadBloodEffect", 0);
                     Invoke("UnloadBloodEffect", 1);
                 }
