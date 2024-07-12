@@ -315,6 +315,25 @@ namespace Ceresta
             Debug.Log("StartGame!");
             var startTransform = map.transform.Find("Start");
             player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
+
+            PutTargetPosToMinimap();
+        }
+
+        private void PutTargetPosToMinimap()
+        {
+            float minimapWidth = minimapCanvas.GetComponent<RectTransform>().rect.width;
+            float rateX = minimapWidth / 2 / 16.1f;
+            float rateY = minimapWidth / 2 / 34.99f;
+
+            var targetTransform = map.transform.Find("Goal");
+            GameObject gameObject = new GameObject();
+            Image image = gameObject.AddComponent<Image>();
+            image.color = Color.green;
+            RectTransform rect = gameObject.GetComponent<RectTransform>();
+            rect.SetParent(minimapCanvas.transform);
+            rect.sizeDelta = new Vector2(20, 20);
+            rect.localScale = new Vector3(1, 1, 1);
+            rect.transform.localPosition = new Vector3(rateX * targetTransform.position.x, rateY * targetTransform.position.y - 10, 0);
         }
     }
 }

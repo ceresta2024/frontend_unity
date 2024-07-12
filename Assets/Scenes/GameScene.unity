@@ -397,13 +397,14 @@ GameObject:
   - component: {fileID: 193407993}
   - component: {fileID: 193407995}
   - component: {fileID: 193407994}
+  - component: {fileID: 193407996}
   m_Layer: 5
   m_Name: MinimapPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &193407993
 RectTransform:
   m_ObjectHideFlags: 0
@@ -463,6 +464,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 193407992}
   m_CullTransparentMesh: 1
+--- !u!114 &193407996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193407992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4605f9721479d034fa226a0c9da0da6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minimapPanel: {fileID: 193407992}
+  minimapButton: {fileID: 1714886385}
 --- !u!1 &210851317
 GameObject:
   m_ObjectHideFlags: 0
@@ -3743,7 +3758,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1714886386
 RectTransform:
   m_ObjectHideFlags: 0
