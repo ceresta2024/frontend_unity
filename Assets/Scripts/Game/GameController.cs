@@ -57,8 +57,13 @@ namespace Ceresta
         public TMP_Text scoreText;
         public Image rewardImage;
         public GameObject confirmModal;
+        public GameObject expandMiniButton;
         public GameObject expandButton;
         public GameObject collapseButton;
+        public GameObject minimapPanel;
+        public GameObject healthBar;
+        public GameObject speedBar;
+        public Canvas minimapCanvas;
 
         private GameObject player;
         private Camera mainCamera;
@@ -66,12 +71,14 @@ namespace Ceresta
         private float damping;
         private Vector3 vel = Vector3.zero;
 
-        private GameObject map;
+        public GameObject map;
 
         public TMP_Text speedText;
         public TMP_Text hpText;
         public TMP_Text playersText;
+        public TMP_Text timeDownText;
         public PlayerController playerController;
+        private DateTime startTime;
 
         // Start is called before the first frame update
         void Start()
@@ -108,14 +115,12 @@ namespace Ceresta
                 targetPosition.z = mainCamera.transform.position.z;
                 Vector2 screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
                 Vector2 screenOrigo = Camera.main.ScreenToWorldPoint(Vector2.zero);
-                var startTransform = map.transform.Find("Start");
-                var endTransform = map.transform.Find("Goal");
                 float width = screenBounds.x - screenOrigo.x;
                 float height = screenBounds.y - screenOrigo.y;
-                float diffXFromStart = player.transform.position.x + (float)16.1;
-                float diffYFromStart = player.transform.position.y - startTransform.position.y;
-                float diffXFromGoal = (float)16.1 - player.transform.position.x;
-                float diffYFromGoal = endTransform.position.y - player.transform.position.y;
+                float diffXFromStart = player.transform.position.x + 16.1f;
+                float diffYFromStart = player.transform.position.y + 34.99f;
+                float diffXFromGoal = 16.1f - player.transform.position.x;
+                float diffYFromGoal = 34.99f - player.transform.position.y;
                 // this.speedText.text = $"Speed: {player.transform.position.x} --- {diffXFromStart} --- {width} --- {startTransform.position.y}";
                 if (diffXFromStart < width)
                 {
@@ -123,7 +128,7 @@ namespace Ceresta
                 }
                 if (diffYFromStart < height * 0.8)
                 {
-                    targetPosition.y = targetPosition.y + (height / 2 - diffYFromStart - (float)0.99);
+                    targetPosition.y = targetPosition.y + (height / 2 - diffYFromStart);
                 }
                 if (diffXFromGoal < width)
                 {
@@ -131,9 +136,17 @@ namespace Ceresta
                 }
                 if (diffYFromGoal < height * 0.8)
                 {
-                    targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal - (float)0.99);
+                    targetPosition.y = targetPosition.y - (height / 2 - diffYFromGoal);
                 }
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetPosition, ref vel, damping);
+
+                // time down
+                var timeSpan = startTime.Subtract(DateTime.Now);
+                if (timeSpan.Ticks > 0)
+                {
+                    var timeRemaining = new DateTime(timeSpan.Ticks).ToString("mm:ss");
+                    timeDownText.text = timeRemaining;
+                }
             }
         }
 
@@ -164,6 +177,12 @@ namespace Ceresta
             expandButton.SetActive(false);
             collapseButton.SetActive(true);
             itemsListWrapper.SetActive(true);
+        }
+
+        public void OnExpandMinimapButton()
+        {
+            expandMiniButton.SetActive(false);
+            minimapPanel.SetActive(true);
         }
 
         public override void OnLeftRoom()
@@ -308,6 +327,28 @@ namespace Ceresta
             Debug.Log("StartGame!");
             var startTransform = map.transform.Find("Start");
             player = PhotonNetwork.Instantiate("Player", startTransform.position, Quaternion.identity);
+
+            startTime = DateTime.Now;
+            startTime = startTime.AddMinutes(15);
+
+            PutTargetPosToMinimap();
+        }
+
+        private void PutTargetPosToMinimap()
+        {
+            float minimapWidth = minimapCanvas.GetComponent<RectTransform>().rect.width;
+            float rateX = minimapWidth / 2 / 16.1f;
+            float rateY = minimapWidth / 2 / 34.99f;
+
+            var targetTransform = map.transform.Find("Goal");
+            GameObject gameObject = new GameObject();
+            Image image = gameObject.AddComponent<Image>();
+            image.color = Color.green;
+            RectTransform rect = gameObject.GetComponent<RectTransform>();
+            rect.SetParent(minimapCanvas.transform);
+            rect.sizeDelta = new Vector2(20, 20);
+            rect.localScale = new Vector3(1, 1, 1);
+            rect.transform.localPosition = new Vector3(rateX * targetTransform.position.x, rateY * targetTransform.position.y - 10, 0);
         }
     }
 }

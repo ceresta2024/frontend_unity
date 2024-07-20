@@ -14,6 +14,7 @@ TagManager:
   - Goal
   - Weather
   - Map
+  - MiniMap
   layers:
   - Default
   - TransparentFX

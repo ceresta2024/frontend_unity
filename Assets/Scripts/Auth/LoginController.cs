@@ -128,7 +128,7 @@ namespace Ceresta
             PlayerPrefs.SetString("Username", res.name);
             PlayerPrefs.SetInt("Score", res.score);
             if (string.IsNullOrEmpty(res.job))
-                PlayerPrefs.SetString("Job", "guest");
+                PlayerPrefs.SetString("Job", "Guest");
             else
                 PlayerPrefs.SetString("Job", res.job);
             PlayerPrefs.SetString("UserType", "user");
